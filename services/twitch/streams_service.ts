@@ -4,27 +4,33 @@ import { mapTwitchStreamsToPlatformStreams } from "../../stream-mappers/twitch_h
 import { updateStreamStreamerDetails } from "../../stream-mappers/twitch_update_stream_streamers_details.ts";
 import { PlatformStreams } from "../../stream-mappers/types.ts";
 import { TwitchStreams, TwitchUser } from "../../streaming-platform-gateways/twitch_helix_gateway.ts";
-import { TwitchHelixGateway } from "../../streaming-platform-gateways/twitch_helix_gateway.ts"
 
-export function maybeGetTwitchStreams(gateway: TwitchHelixGateway): Promise<Maybe<PlatformStreams>> {
-  return gateway.getStreams()
+type GetUsersById = (userIds: string[]) => Promise<TwitchUser[]>;
+
+type GetTwitchStreamsInput = {
+  getStreams: () => Promise<TwitchStreams>,
+  getUsersById: GetUsersById,
+}
+
+export function maybeGetTwitchStreams({ getStreams, getUsersById }: GetTwitchStreamsInput): Promise<Maybe<PlatformStreams>> {
+  return getStreams()
     .then((twitchStreams: TwitchStreams) => {
       return mapTwitchStreamsToPlatformStreams(twitchStreams)
     })
     .then((platformStreams: PlatformStreams) => {
-      return tryUpdateStreamerDetails(gateway, platformStreams)
+      return tryUpdateStreamerDetails(getUsersById, platformStreams)
     })
     .then((platformStreams: PlatformStreams) => {
       return Maybe.Some(platformStreams)
     })
     .catch((error: unknown) => {
-      console.error('Error getting twitch streams -', error);
+      console.error(error);
       return Maybe.None();
     });
 }
 
-function tryUpdateStreamerDetails(gateway: TwitchHelixGateway, platformStreams: PlatformStreams): Promise<PlatformStreams> {
-  return gateway.getUsersById(extractStreamerIds(platformStreams.streams))
+function tryUpdateStreamerDetails(getUsersById: GetUsersById, platformStreams: PlatformStreams): Promise<PlatformStreams> {
+  return getUsersById(extractStreamerIds(platformStreams.streams))
     .then((users: TwitchUser[]) => {
       return updateStreamStreamerDetails(platformStreams, users)
     })

@@ -27,7 +27,9 @@ export const get = <T>({ url, headers }: Request): Promise<T> => {
     method: "GET",
     headers
   })
-  .then((response) => response.json())
+  .then((response) => {
+    return response.json()
+  })
   .then((json) => {
     return json as T
   });
