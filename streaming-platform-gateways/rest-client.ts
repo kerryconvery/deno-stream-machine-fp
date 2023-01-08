@@ -13,12 +13,38 @@ export const withParam = (paramName: string, paramValue: string) => (input: Rest
   })
 });
 
-export const get = <T>(url: string): Promise<T> => {
+type Request = {
+  url: string,
+  headers: Record<string, string>,
+}
+
+type PostRequest = Request & {
+  body: string
+}
+
+export const get = <T>({ url, headers }: Request): Promise<T> => {
   return  fetch(url, {
     method: "GET",
+    headers
   })
   .then((response) => response.json())
-  .then((json) => json.data as T);
+  .then((json) => {
+    return json as T
+  });
+}
+
+export const post = <T>({ url, headers, body}: PostRequest): Promise<T> => {
+  return  fetch(url, {
+    method: "POST",
+    body,
+    headers
+  })
+  .then((response) => {
+    return response.json()
+  })
+  .then((json) => {
+    return json as T
+  });
 }
 
 const _makeUrl = (url: string, urlParams: Record<string, string>): string => {

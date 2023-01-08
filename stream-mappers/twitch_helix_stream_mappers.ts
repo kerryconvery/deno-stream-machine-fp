@@ -5,7 +5,7 @@ export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams):
   return {
     source: 'twitch',
     streams: twitchStreams.data.map(stream => toPlatformStream(stream)),
-    nextPageOffset: twitchStreams.nextPageOffset
+    nextPageOffset: twitchStreams.cursor
   }
 }
 

@@ -17,11 +17,11 @@ export type PlatformStream = {
 export type PlatformStreams = {
   source: string,
   streams: PlatformStream[],
-  nextPageOffset: number
+  nextPageOffset: string,
 }
 
 export type AggregatedPageOffsets = {
-  [provider: string]: number
+  [provider: string]: string
 }
 
 export type AggregatedStreams = {

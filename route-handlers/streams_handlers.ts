@@ -1,13 +1,18 @@
-import { getStreams } from "../services/stream_service.ts";
-import { getTwitchStreams } from "../services/twitch/streams_service.ts";
+import { getAllStreams } from "../services/stream_service.ts";
+import { maybeGetTwitchStreams } from "../services/twitch/streams_service.ts";
 import { AggregatedStreams } from "../stream-mappers/types.ts";
 import { TwitchHelixGateway } from "../streaming-platform-gateways/twitch_helix_gateway.ts";
 
 export function getStreamsHandler(): Promise<AggregatedStreams> {
-  const twichGateway = new TwitchHelixGateway("");
+  const twichGateway = new TwitchHelixGateway(
+    "https://id.twitch.tv",
+    "https://api.twitch.tv",
+    "hmimgefw1924xe48uk2fhmuq1tnvfs",
+    "tb8c2twoljtdbjvz6josstvie2iwl2"
+  );
 
-  const twitchStreamsA = getTwitchStreams(twichGateway);
-  const twitchStreamsB = getTwitchStreams(twichGateway);
+  const twitchStreamsA = maybeGetTwitchStreams(twichGateway);
+  // const twitchStreamsB = maybeGetTwitchStreams(twichGateway);
 
-  return getStreams(twitchStreamsA, twitchStreamsB);
+  return getAllStreams(twitchStreamsA);
 }

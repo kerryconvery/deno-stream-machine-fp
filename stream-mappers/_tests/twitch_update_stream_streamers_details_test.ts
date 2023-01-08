@@ -10,7 +10,7 @@ Deno.test('Update Twitch stream streamer details', async (test) => {
       createPlatformStream('God of war', 'streamer1'),
       createPlatformStream('Dark souls', 'streamer2'),
     ],
-    nextPageOffset: 0,
+    nextPageOffset: '0',
   }
 
   await test.step('It will update each streams with streamer name and avatar url', () => {

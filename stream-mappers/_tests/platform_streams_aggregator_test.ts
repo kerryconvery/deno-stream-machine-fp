@@ -10,7 +10,7 @@ Deno.test("Stream aggreator service", async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: 3
+      nextPageOffset: '3'
     }
 
     const providerBStreams: PlatformStreams = {
@@ -18,7 +18,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: 2
+      nextPageOffset: '2'
     }
 
     const aggregatedStreams = aggregateStreams([

@@ -10,7 +10,7 @@ Deno.test('Twitch stream mapper', async (test) => {
           createTwitchStream('stream1', 'God of war'),
           createTwitchStream('stream2', 'Dark souls'),
         ],
-        nextPageOffset: 3
+        cursor: '3'
       },
   );
     
@@ -46,7 +46,7 @@ Deno.test('Twitch stream mapper', async (test) => {
             isLive: true,
           }
         ],
-        nextPageOffset: 3
+        nextPageOffset: '3'
       }
     )
   })

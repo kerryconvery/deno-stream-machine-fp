@@ -11,7 +11,7 @@ Deno.test('Extract streams', async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: 3
+      nextPageOffset: '3'
     }
 
     const providerBStreams: PlatformStreams = {
@@ -19,7 +19,7 @@ Deno.test('Extract streams', async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: 2
+      nextPageOffset: '2'
     }
 
     const streams = extractMaybeStreams([Maybe.Some(providerAStreams), Maybe.Some(providerBStreams)]);
@@ -43,7 +43,7 @@ Deno.test('Extract streams', async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: 3
+      nextPageOffset: '3'
     }
 
     const streams = extractMaybeStreams([Maybe.None(), Maybe.Some(providerAStreams)]);
@@ -60,7 +60,7 @@ Deno.test('Extract streams', async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: 3
+      nextPageOffset: '3'
     }
 
     const streams = extractMaybeStreams([Maybe.Some(providerAStreams), Maybe.None()]);
