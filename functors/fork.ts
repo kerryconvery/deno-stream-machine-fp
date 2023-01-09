@@ -7,7 +7,6 @@ type Fork<T> = {
 }
 
 export function fork<T>({ condition, left, right }: Fork<T> ): T {
-    console.log('fork', condition, left, right)
     if (condition) {
         return right()
     }
