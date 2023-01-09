@@ -9,7 +9,7 @@ export function getStreamsHandler(): Promise<AggregatedStreams> {
     getAuthHeaders: createAuthorizer(
       "https://id.twitch.tv",
       "hmimgefw1924xe48uk2fhmuq1tnvfs",
-      "tb8c2twoljtdbjvz6josstvie2iwl2"
+      ""
     )
   });
 

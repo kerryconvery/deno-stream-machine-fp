@@ -63,7 +63,7 @@ export class Request {
     .then((response) => {
       return fork({
         condition: response.ok,
-        left: () => Promise.reject(),
+        left: () => Promise.reject(response),
         right: () => response.json()
        })
     })
