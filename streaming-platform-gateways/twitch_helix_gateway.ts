@@ -1,4 +1,4 @@
-import { get, post } from "./rest-client.ts";
+import { createGetRequest, createPostRequest, request, RequestOptions } from "./rest-client.ts";
 import { Maybe } from '../functors/maybe.ts';
 
 export type TwitchStream = {
@@ -33,64 +33,74 @@ type TwitchAuthResponse = {
   token_type: string,
 }
 
-type Requester<T> = (headers: Record<string, string>) => Promise<T>;
-type Authorizer = <T>(requester: Requester<T>) => Promise<T>;
+type TwitchAuthHeaders = {
+  'Client-Id': string;
+  'Authorization': string;
+}
+type TwitchAuthorizer = () => Promise<TwitchAuthHeaders>;
 
 type TwitchHelixGatewayParams = {
   apiUrl: string,
-  withAuthToken: Authorizer
+  getAuthHeaders: TwitchAuthorizer
 }
 
-export function createTwitchHelixGateway({ apiUrl, withAuthToken }: TwitchHelixGatewayParams) {    
+export function createTwitchHelixGateway({ apiUrl, getAuthHeaders }: TwitchHelixGatewayParams) {    
   return {
     getStreams: (): Promise<TwitchStreams> => {
-      return withAuthToken((headers: Record<string, string>) => {
-        return get<TwitchStreams>({
-          url: `${apiUrl}/helix/streams`,
-          headers,
+      return getAuthHeaders()
+        .then((headers: TwitchAuthHeaders) => {
+          return createGetRequest(`${apiUrl}/helix/streams`)
+            .setHeaders(headers)
+            .build();
         })
-      });
+        .then((options: RequestOptions) => {
+          return request<TwitchStreams>(options)
+        })
     },
 
     getUsersById: (userIds: string[]): Promise<TwitchUser[]> => {
-      return withAuthToken((headers: Record<string, string>) => {
-        return get<TwitchUsers>({
-          url: `${apiUrl}/helix/users?${joinUserIds(userIds)}`,
-          headers,
-        }).then(users => users.data)
-      });
+      return getAuthHeaders()
+        .then((headers: TwitchAuthHeaders) => {
+          return createGetRequest(`${apiUrl}/helix/users?${joinUserIds(userIds)}`)
+            .setHeaders(headers)
+            .build();
+        })
+        .then((options: RequestOptions) => {
+          return request<TwitchUsers>(options)
+        })
+        .then((users) => {
+          return users.data
+        })
     }
   }
 }
-
 
 function joinUserIds(userIds: string[]): string {
   return userIds.map(id => `id=${id}`).join("&")
 }
 
-export function createAuthorizer(authUrl: string, clientId: string, clientSecret: string): Authorizer {
+export function createAuthorizer(authUrl: string, clientId: string, clientSecret: string): TwitchAuthorizer {
   let authToken: Maybe<string> = Maybe.None();
   
-  return async function<T>(requestFunction: Requester<T>): Promise<T> {
+  return async function(): Promise<TwitchAuthHeaders> {
     if (authToken.isNone()) {
       authToken = Maybe.Some(await getAuthToken(authUrl, clientId, clientSecret));
     }
 
-    return requestFunction({
+    return {
       'Client-Id': clientId,
       'Authorization': `Bearer ${authToken.getValue("")}`,
-    })
+    }
   }
 }
 
 function getAuthToken(authUrl: string, clientId: string, clientSecret: string): Promise<string> {
-  return post<TwitchAuthResponse>({
-    url: `${authUrl}/oauth2/token`,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`
-  })
+  return request<TwitchAuthResponse>(
+      createPostRequest(`${authUrl}/oauth2/token`)
+        .setHeader('Content-Type', 'application/x-www-form-urlencoded')
+        .setBody(`client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`)
+        .build()
+  )
   .then((data: TwitchAuthResponse) => {
     return data.access_token
   })

@@ -31,4 +31,20 @@ Deno.test("Maybe monad", async (test) =>{
     assertInstanceOf(none, None<string>);
     assertEquals(none.getValue("none"), "none")
   })
+
+  await test.step("Given a right handler it will apply the handler when the maybe is some", () => {
+    const some = Maybe
+     .Some<string>("some")
+     .getValueAs((value: string) => value, () => "none")
+
+     assertEquals(some, "some");
+  })
+
+  await test.step("Given a right handler it will apply the handler when the maybe is some", () => {
+    const some = Maybe
+     .None<string>()
+     .getValueAs<string>((value: string) => value, () => "none")
+
+     assertEquals(some, "none");
+  })
 })

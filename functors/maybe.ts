@@ -27,6 +27,7 @@ export abstract class Maybe<T> {
   abstract map<Result>(mapper: Selector<T, Result>): Maybe<Result>;
   abstract flatMap<Result>(mapper: Selector<T, Maybe<Result>>): Maybe<Result>;
   abstract getValue(fallbackValue: T): T;
+  abstract getValueAs<Result>(right: (value: T) => Result, left: () => Result): Result;
 }
 
 export class Some<T> extends Maybe<T> {
@@ -48,6 +49,10 @@ export class Some<T> extends Maybe<T> {
   getValue(): T {
     return this._value;
   }
+
+  getValueAs<Result>(right: (value: T) => Result, _left: () => Result): Result {
+    return right(this._value);
+  }
 }
 
 export class None<T> extends Maybe<T> {
@@ -61,5 +66,9 @@ export class None<T> extends Maybe<T> {
 
   getValue(fallbackValue: T): T {
     return fallbackValue;
+  }
+
+  getValueAs<Result>(_right: (value: T) => Result, left: () => Result): Result {
+    return left();
   }
 }

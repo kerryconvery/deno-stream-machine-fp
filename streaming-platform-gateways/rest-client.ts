@@ -13,33 +13,66 @@ export const withParam = (paramName: string, paramValue: string) => (input: Rest
   })
 });
 
-type Request = {
+export type RequestOptions = {
   url: string,
+  method: string,
   headers: Record<string, string>,
+  body?: string
 }
 
-type PostRequest = Request & {
-  body: string
+class RequestBuilder {
+  private url: string;
+  private method: string;
+  private headers: Record<string, string> = {}
+  private body: Maybe<string> = Maybe.None();
+  
+  constructor(url: string, method: string) {
+    this.url = url;
+    this.method = method;
+  }
+
+  setBody(body: string): RequestBuilder {
+    this.body = Maybe.Some(body);
+    return this;
+  }
+
+  setHeader(name: string, value: string): RequestBuilder {
+    this.headers[name] = value;
+    return this;
+  }
+
+  setHeaders(headers: Record<string, string>): RequestBuilder {
+    this.headers = { ...this.headers, ...headers };
+    return this;
+  }
+
+  build(): RequestOptions {
+    return {
+      url: this.url,
+      headers: this.headers,
+      method: this.method,
+      body: this.body
+        .getValueAs<string | undefined>(
+            (value: string) => value,
+            () => undefined
+          )
+    }
+  }
 }
 
-export const get = <T>({ url, headers }: Request): Promise<T> => {
+export function createGetRequest(url: string): RequestBuilder {
+  return new RequestBuilder(url, "GET");
+}
+
+export function createPostRequest(url: string): RequestBuilder {
+  return new RequestBuilder(url, "POST");
+}
+
+export const request = <T>({ url, method, headers, body }: RequestOptions): Promise<T> => {
   return  fetch(url, {
-    method: "GET",
-    headers
-  })
-  .then((response) => {
-    return response.json()
-  })
-  .then((json) => {
-    return json as T
-  });
-}
-
-export const post = <T>({ url, headers, body}: PostRequest): Promise<T> => {
-  return  fetch(url, {
-    method: "POST",
-    body,
-    headers
+    method,
+    headers,
+    body
   })
   .then((response) => {
     return response.json()

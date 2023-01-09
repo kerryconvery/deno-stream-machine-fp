@@ -6,7 +6,11 @@ import { createAuthorizer, createTwitchHelixGateway } from "../streaming-platfor
 export function getStreamsHandler(): Promise<AggregatedStreams> {
   const twichGateway = createTwitchHelixGateway({
     apiUrl: "https://api.twitch.tv",
-    withAuthToken: createAuthorizer("https://id.twitch.tv", "","")
+    getAuthHeaders: createAuthorizer(
+      "https://id.twitch.tv",
+      "",
+      ""
+    )
   });
 
   const twitchStreamsA = maybeGetTwitchStreams(twichGateway);
