@@ -1,4 +1,4 @@
-import { createGetRequest, createPostRequest, request, RequestOptions } from "./rest-client.ts";
+import { Request } from "./rest-client.ts";
 import { Maybe } from '../functors/maybe.ts';
 
 export type TwitchStream = {
@@ -49,24 +49,20 @@ export function createTwitchHelixGateway({ apiUrl, getAuthHeaders }: TwitchHelix
     getStreams: (): Promise<TwitchStreams> => {
       return getAuthHeaders()
         .then((headers: TwitchAuthHeaders) => {
-          return createGetRequest(`${apiUrl}/helix/streams`)
+          return Request
+            .createGetRequest(`${apiUrl}/helix/streams`)
             .setHeaders(headers)
-            .build();
-        })
-        .then((options: RequestOptions) => {
-          return request<TwitchStreams>(options)
+            .request<TwitchStreams>()
         })
     },
 
     getUsersById: (userIds: string[]): Promise<TwitchUser[]> => {
       return getAuthHeaders()
         .then((headers: TwitchAuthHeaders) => {
-          return createGetRequest(`${apiUrl}/helix/users?${joinUserIds(userIds)}`)
+          return Request
+            .createGetRequest(`${apiUrl}/helix/users?${joinUserIds(userIds)}`)
             .setHeaders(headers)
-            .build();
-        })
-        .then((options: RequestOptions) => {
-          return request<TwitchUsers>(options)
+            .request<TwitchUsers>();
         })
         .then((users) => {
           return users.data
@@ -95,13 +91,12 @@ export function createAuthorizer(authUrl: string, clientId: string, clientSecret
 }
 
 function getAuthToken(authUrl: string, clientId: string, clientSecret: string): Promise<string> {
-  return request<TwitchAuthResponse>(
-      createPostRequest(`${authUrl}/oauth2/token`)
-        .setHeader('Content-Type', 'application/x-www-form-urlencoded')
-        .setBody(`client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`)
-        .build()
-  )
-  .then((data: TwitchAuthResponse) => {
-    return data.access_token
-  })
+  return Request
+    .createPostRequest(`${authUrl}/oauth2/token`)
+    .setHeader('Content-Type', 'application/x-www-form-urlencoded')
+    .setBody(`client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`)
+    .request<TwitchAuthResponse>()
+    .then((data: TwitchAuthResponse) => {
+      return data.access_token
+    })
 }

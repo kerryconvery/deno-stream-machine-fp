@@ -1,7 +1,15 @@
 type ForkFn<T> = () => T
-export function fork<T>(condition: boolean, leftFn: ForkFn<T>, rightFn: ForkFn<T>): T {
+
+type Fork<T> = {
+    condition: boolean,
+    left: ForkFn<T>,
+    right: ForkFn<T>
+}
+
+export function fork<T>({ condition, left, right }: Fork<T> ): T {
+    console.log('fork', condition, left, right)
     if (condition) {
-        return rightFn()
+        return right()
     }
-    return leftFn()
+    return left()
 }
