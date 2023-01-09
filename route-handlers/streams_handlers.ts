@@ -8,7 +8,7 @@ export function getStreamsHandler(): Promise<AggregatedStreams> {
     apiUrl: "https://api.twitch.tv",
     getAuthHeaders: createAuthorizer(
       "https://id.twitch.tv",
-      "hmimgefw1924xe48uk2fhmuq1tnvfs",
+      "",
       ""
     )
   });
