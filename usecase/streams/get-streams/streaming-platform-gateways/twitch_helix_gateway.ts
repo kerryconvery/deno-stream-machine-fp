@@ -50,14 +50,20 @@ export function createTwitchHelixGateway({ apiUrl, getAuthHeaders }: TwitchHelix
     getStreams: (): Promise<TwitchStreams> => {
       return getAuthHeaders()
         .then((headers: TwitchAuthHeaders) => {
-          return createGetRequest<TwitchStreams>(`${apiUrl}/helix/streams`, headers)
+          return Request
+            .createGetRequest(`${apiUrl}/helix/streams`)
+            .setHeaders(headers)
+            .request<TwitchStreams>()
         })
     },
 
     getUsersById: (userIds: string[]): Promise<TwitchUser[]> => {
       return getAuthHeaders()
         .then((headers: TwitchAuthHeaders) => {
-          return createGetRequest<TwitchUsers>(`${apiUrl}/helix/users?${joinUserIds(userIds)}`, headers)
+          return Request
+            .createGetRequest(`${apiUrl}/helix/users?${joinUserIds(userIds)}`)
+            .setHeaders(headers)
+            .request<TwitchUsers>()
         })
         .then((users) => {
           return users.data
