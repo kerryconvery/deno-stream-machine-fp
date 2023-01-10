@@ -1,4 +1,4 @@
-import { getStreamsHandler } from "./route-handlers/streams_handlers.ts";
+import { getStreamsHandler } from "./usecase/streams/route-handlers/streams_handlers.ts";
 
 console.log('getting streams');
 
