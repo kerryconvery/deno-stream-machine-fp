@@ -82,10 +82,10 @@ export function createAuthorizer(authUrl: string, clientId: string, clientSecret
   return function(): Promise<TwitchAuthHeaders> {
     return getAuthToken()
       .then((authToken: string) => {
-      return {
-        'Client-Id': clientId,
-        'Authorization': `Bearer ${authToken}`,
-      }
+        return {
+          'Client-Id': clientId,
+          'Authorization': `Bearer ${authToken}`,
+        }
     })
   }
 }
