@@ -72,13 +72,6 @@ export function createTwitchHelixGateway({ apiUrl, getAuthHeaders }: TwitchHelix
   }
 }
 
-function createGetRequest<T>(url: string, headers: TwitchAuthHeaders) {
-  return Request
-   .createGetRequest(url)
-   .setHeaders(headers)
-   .request<T>()
-}
-
 function joinUserIds(userIds: string[]): string {
   return userIds.map(id => `id=${id}`).join("&")
 }
