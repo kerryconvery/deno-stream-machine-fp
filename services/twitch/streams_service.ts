@@ -1,4 +1,4 @@
-import { Maybe } from "../../functors/maybe.ts";
+import { Maybe } from "../../shared/functors/maybe.ts";
 import { extractStreamerIds } from "./mappers/extract_streamer_ids.ts";
 import { mapTwitchStreamsToPlatformStreams } from "./mappers/twitch_helix_stream_mappers.ts";
 import { updateStreamStreamerDetails } from "./mappers/twitch_update_stream_streamers_details.ts";

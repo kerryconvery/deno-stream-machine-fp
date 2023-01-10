@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
-import { Maybe } from "../../../functors/maybe.ts";
+import { Maybe } from "../../../shared/functors/maybe.ts";
 import { extractMaybeStreams } from "../extract_maybe_streams.ts";
 import { PlatformStream, PlatformStreams } from "../../../shared/types.ts";
 

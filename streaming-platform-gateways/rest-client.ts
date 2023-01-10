@@ -1,5 +1,5 @@
-import { fork } from "../functors/fork.ts";
-import { Maybe } from "../functors/maybe.ts";
+import { fork } from "../shared/functors/fork.ts";
+import { Maybe } from "../shared/functors/maybe.ts";
 
 export type RestClientConfig = {
   apiUrl: string,

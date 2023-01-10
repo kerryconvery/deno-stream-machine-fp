@@ -1,6 +1,6 @@
 import { Request } from "./rest-client.ts";
-import { Maybe } from '../functors/maybe.ts';
-import { fork } from "../functors/fork.ts";
+import { Maybe } from '../shared/functors/maybe.ts';
+import { fork } from "../shared/functors/fork.ts";
 
 export type TwitchStream = {
   id: string,
