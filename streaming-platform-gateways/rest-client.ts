@@ -25,7 +25,7 @@ export class Request {
   private method: string;
 
   private headers: Record<string, string> = {}
-  private body: Maybe<string> = Maybe.None();
+  private body?: string;
   
   constructor(url: string, method: string) {
     this.url = url;
@@ -41,7 +41,7 @@ export class Request {
   }
 
   setBody(body: string): Request {
-    this.body = Maybe.Some(body);
+    this.body =body;
     return this;
   }
 
@@ -77,10 +77,6 @@ export class Request {
       method: this.method,
       headers: this.headers,
       body: this.body
-        .getValueAs<string | undefined>(
-            (value: string) => value,
-            () => undefined
-          )
     }
   }
 }

@@ -1,5 +1,5 @@
-import { TwitchStream, TwitchStreams } from "../streaming-platform-gateways/twitch_helix_gateway.ts";
-import { PlatformStream, PlatformStreams } from "./types.ts";
+import { TwitchStream, TwitchStreams } from "../../../streaming-platform-gateways/twitch_helix_gateway.ts";
+import { PlatformStream, PlatformStreams } from "../../../shared/types.ts";
 
 export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams): PlatformStreams {
   return {

@@ -1,4 +1,4 @@
-import { PlatformStream } from "./types.ts";
+import { PlatformStream } from "../../../shared/types.ts";
 
 export function extractStreamerIds(
   streams: PlatformStream[]

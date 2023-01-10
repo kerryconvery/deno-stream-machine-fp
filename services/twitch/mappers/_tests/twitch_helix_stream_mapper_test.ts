@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts"
-import { TwitchStream } from "../../streaming-platform-gateways/twitch_helix_gateway.ts";
+import { TwitchStream } from "../../../../streaming-platform-gateways/twitch_helix_gateway.ts";
 import { mapTwitchStreamsToPlatformStreams } from "../twitch_helix_stream_mappers.ts"
 
 Deno.test('Twitch stream mapper', async (test) => {

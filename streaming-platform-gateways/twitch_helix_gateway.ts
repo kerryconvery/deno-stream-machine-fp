@@ -1,5 +1,6 @@
 import { Request } from "./rest-client.ts";
 import { Maybe } from '../functors/maybe.ts';
+import { fork } from "../functors/fork.ts";
 
 export type TwitchStream = {
   id: string,
@@ -76,21 +77,20 @@ function joinUserIds(userIds: string[]): string {
 }
 
 export function createAuthorizer(authUrl: string, clientId: string, clientSecret: string): TwitchAuthorizer {
-  let authToken: Maybe<string> = Maybe.None();
+  const getAuthToken = createAuthTokenCache(() => getNewAuthToken(authUrl, clientId, clientSecret))
   
-  return async function(): Promise<TwitchAuthHeaders> {
-    if (authToken.isNone()) {
-      authToken = Maybe.Some(await getAuthToken(authUrl, clientId, clientSecret));
-    }
-
-    return {
-      'Client-Id': clientId,
-      'Authorization': `Bearer ${authToken.getValue("")}`,
-    }
+  return function(): Promise<TwitchAuthHeaders> {
+    return getAuthToken()
+      .then((authToken: string) => {
+      return {
+        'Client-Id': clientId,
+        'Authorization': `Bearer ${authToken}`,
+      }
+    })
   }
 }
 
-function getAuthToken(authUrl: string, clientId: string, clientSecret: string): Promise<string> {
+function getNewAuthToken(authUrl: string, clientId: string, clientSecret: string): Promise<string> {
   return Request
     .createPostRequest(`${authUrl}/oauth2/token`)
     .setHeader('Content-Type', 'application/x-www-form-urlencoded')
@@ -99,4 +99,24 @@ function getAuthToken(authUrl: string, clientId: string, clientSecret: string): 
     .then((data: TwitchAuthResponse) => {
       return data.access_token
     })
+}
+
+function createAuthTokenCache(getAuthToken: () => Promise<string>) {
+  let authToken: Maybe<string> = Maybe.None();
+  
+  return function(): Promise<string> {
+    return fork({
+      condition: authToken.isSome(),
+      left: () => {
+        return getAuthToken()
+          .then((token: string) => {
+            authToken = Maybe.Some(token);
+            return token;
+          })
+      },
+      right: () => {
+        return Promise.resolve(authToken.getValue(""))
+      }
+    })
+  }
 }
