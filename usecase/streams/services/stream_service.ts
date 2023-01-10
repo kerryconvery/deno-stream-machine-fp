@@ -5,6 +5,10 @@ import { AggregatedStreams, PlatformStreams } from "../shared/types.ts";
 
 export function getAllStreams(...streamSources: Promise<Maybe<PlatformStreams>>[]): Promise<AggregatedStreams> {
   return Promise.all(streamSources)
-   .then((maybeStreams: Maybe<PlatformStreams>[]) => extractMaybeStreams(maybeStreams))
-   .then((streams: PlatformStreams[]) => aggregateStreams(streams))
+   .then((maybeStreams: Maybe<PlatformStreams>[]) => {
+      return extractMaybeStreams(maybeStreams)
+   })
+   .then((streams: PlatformStreams[]) => {
+      return aggregateStreams(streams)
+   })
 }

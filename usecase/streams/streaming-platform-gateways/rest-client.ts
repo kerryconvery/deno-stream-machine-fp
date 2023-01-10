@@ -61,11 +61,7 @@ export class Request {
       this.getRequestOptions()
     )
     .then((response) => {
-      return fork({
-        condition: response.ok,
-        left: () => Promise.reject(response),
-        right: () => response.json()
-       })
+      return this.getJsonResponse(response)
     })
     .then((json) => {
       return json as T
@@ -78,6 +74,14 @@ export class Request {
       headers: this.headers,
       body: this.body
     }
+  }
+
+  private getJsonResponse(response: Response): Promise<unknown> {
+    return fork({
+      condition: response.ok,
+      left: () => Promise.reject(response),
+      right: () => response.json()
+     })
   }
 }
 
