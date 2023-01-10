@@ -1,4 +1,4 @@
-import { Request } from "./rest-client.ts";
+import { Request } from "./rest_client.ts";
 import { Maybe } from '../shared/functors/maybe.ts';
 import { fork } from "../shared/functors/fork.ts";
 
@@ -50,26 +50,27 @@ export function createTwitchHelixGateway({ apiUrl, getAuthHeaders }: TwitchHelix
     getStreams: (): Promise<TwitchStreams> => {
       return getAuthHeaders()
         .then((headers: TwitchAuthHeaders) => {
-          return Request
-            .createGetRequest(`${apiUrl}/helix/streams`)
-            .setHeaders(headers)
-            .request<TwitchStreams>()
+          return createGetRequest<TwitchStreams>(`${apiUrl}/helix/streams`, headers)
         })
     },
 
     getUsersById: (userIds: string[]): Promise<TwitchUser[]> => {
       return getAuthHeaders()
         .then((headers: TwitchAuthHeaders) => {
-          return Request
-            .createGetRequest(`${apiUrl}/helix/users?${joinUserIds(userIds)}`)
-            .setHeaders(headers)
-            .request<TwitchUsers>();
+          return createGetRequest<TwitchUsers>(`${apiUrl}/helix/users?${joinUserIds(userIds)}`, headers)
         })
         .then((users) => {
           return users.data
         })
     }
   }
+}
+
+function createGetRequest<T>(url: string, headers: TwitchAuthHeaders) {
+  return Request
+   .createGetRequest(url)
+   .setHeaders(headers)
+   .request<T>()
 }
 
 function joinUserIds(userIds: string[]): string {
@@ -82,11 +83,15 @@ export function createAuthorizer(authUrl: string, clientId: string, clientSecret
   return function(): Promise<TwitchAuthHeaders> {
     return getAuthToken()
       .then((authToken: string) => {
-        return {
-          'Client-Id': clientId,
-          'Authorization': `Bearer ${authToken}`,
-        }
-    })
+        return mapToAuthHeaders(clientId, authToken)
+      })
+  }
+}
+
+function mapToAuthHeaders(clientId: string, authToken: string) {
+  return {
+    'Client-Id': clientId,
+    'Authorization': `Bearer ${authToken}`,
   }
 }
 
