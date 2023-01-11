@@ -1,6 +1,6 @@
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts";
-import { Maybe } from "../../../shared/functors/maybe.ts";
-import { PlatformStream, PlatformStreams } from "../../../shared/types.ts"
+import { Maybe } from "../../../../../shared/functors/maybe.ts";
+import { PlatformStream, PlatformStreams } from "../../../../../shared/types.ts"
 import { aggregateStreams } from "../platform_streams_aggregator.ts"
 
 Deno.test("Stream aggreator service", async (test) => {

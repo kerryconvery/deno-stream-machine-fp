@@ -1,4 +1,4 @@
-import { PlatformStreams,AggregatedStreams, noAggregatedStreams } from "../../shared/types.ts";
+import { PlatformStreams,AggregatedStreams, noAggregatedStreams } from "../../../../shared/types.ts";
 
 export function aggregateStreams(
   platformStreamsCollection: PlatformStreams[]

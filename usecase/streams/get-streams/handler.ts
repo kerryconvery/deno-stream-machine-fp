@@ -1,6 +1,6 @@
 import { getAllStreams } from "./services/stream_service.ts";
 import { maybeGetTwitchStreams } from "./services/twitch/streams_service.ts";
-import { AggregatedStreams } from "./shared/types.ts";
+import { AggregatedStreams } from "../../shared/types.ts";
 import { createTwitchHelixGateway } from "./streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 
 export function getStreamsHandler(): Promise<AggregatedStreams> {

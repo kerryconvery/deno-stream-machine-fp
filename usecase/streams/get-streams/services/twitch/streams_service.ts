@@ -1,8 +1,8 @@
-import { Maybe } from "../../shared/functors/maybe.ts";
+import { Maybe } from "../../../../shared/functors/maybe.ts";
 import { extractStreamerIds } from "./mappers/extract_streamer_ids.ts";
 import { mapTwitchStreamsToPlatformStreams } from "./mappers/twitch_helix_stream_mappers.ts";
 import { updateStreamStreamerDetails } from "./mappers/twitch_update_stream_streamers_details.ts";
-import { PlatformStreams } from "../../shared/types.ts";
+import { PlatformStreams } from "../../../../shared/types.ts";
 import { TwitchStreams, TwitchUser } from "../../streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 
 type GetUsersById = (userIds: string[]) => Promise<TwitchUser[]>;

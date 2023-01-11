@@ -1,6 +1,6 @@
-import { Maybe } from "../../shared/functors/maybe.ts";
-import { request } from "../../shared/rest_client.ts";
-import { fork } from "../../shared/functors/fork.ts";
+import { Maybe } from "../../../../shared/functors/maybe.ts";
+import { request } from "../../../../shared/rest_client.ts";
+import { fork } from "../../../../shared/functors/fork.ts";
 
 export type TwitchAuthHeaders = {
   'Client-Id': string;

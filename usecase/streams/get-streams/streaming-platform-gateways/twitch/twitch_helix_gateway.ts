@@ -1,4 +1,4 @@
-import { request } from "../../shared/rest_client.ts";
+import { request } from "../../../../shared/rest_client.ts";
 import { createAuthorizer, TwitchAuthHeaders } from "./authorisation.ts";
 
 export type TwitchStream = {
