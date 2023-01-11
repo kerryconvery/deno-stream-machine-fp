@@ -1,4 +1,5 @@
-import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts"
+import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts"
+import { Maybe } from "../../../../shared/functors/maybe.ts";
 import { TwitchStream } from "../../../../streaming-platform-gateways/twitch_helix_gateway.ts";
 import { mapTwitchStreamsToPlatformStreams } from "../twitch_helix_stream_mappers.ts"
 
@@ -10,9 +11,11 @@ Deno.test('Twitch stream mapper', async (test) => {
           createTwitchStream('stream1', 'God of war'),
           createTwitchStream('stream2', 'Dark souls'),
         ],
-        cursor: '3'
+        pagination: {
+          cursor: '3'
+        }
       },
-  );
+    );
     
     assertEquals(
       mappedStreams,
@@ -46,7 +49,25 @@ Deno.test('Twitch stream mapper', async (test) => {
             isLive: true,
           }
         ],
-        nextPageOffset: '3'
+        nextPageOffset: Maybe.Some('3')
+      }
+    )
+  })
+
+  await test.step('Given the last page of twitch streams it will return an empty next page offset', () => {
+    const mappedStreams = mapTwitchStreamsToPlatformStreams(
+      {
+        data: [
+          createTwitchStream('stream1', 'God of war'),
+        ],
+        pagination: {}
+      },
+    );
+    
+    assertObjectMatch(
+      mappedStreams,
+      {
+        nextPageOffset: Maybe.None()
       }
     )
   })
@@ -60,7 +81,6 @@ Deno.test('Twitch stream mapper', async (test) => {
       thumbnail_url: 'thumbnail',
       viewer_count: 10,
       isLive: true,
-      cursor: "",
     }
   }
 })

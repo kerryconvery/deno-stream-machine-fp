@@ -28,8 +28,10 @@ function addPlatformStreams(
       ...streams
     ],
     nextPageOffsets: {
-      ...aggregatedStreams.nextPageOffsets, 
-      [source]: nextPageOffset
+      ...aggregatedStreams.nextPageOffsets,
+      ...nextPageOffset
+          .map((cursor: string) => ({ [source]: cursor }))
+          .getValue({})
     }
   }
 }  

@@ -1,4 +1,5 @@
-import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
+import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts";
+import { Maybe } from "../../../shared/functors/maybe.ts";
 import { PlatformStream, PlatformStreams } from "../../../shared/types.ts"
 import { aggregateStreams } from "../platform_streams_aggregator.ts"
 
@@ -10,7 +11,7 @@ Deno.test("Stream aggreator service", async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: '3'
+      nextPageOffset: Maybe.Some('3')
     }
 
     const providerBStreams: PlatformStreams = {
@@ -18,7 +19,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: '2'
+      nextPageOffset: Maybe.Some('2')
     }
 
     const aggregatedStreams = aggregateStreams([
@@ -32,13 +33,56 @@ Deno.test("Stream aggreator service", async (test) => {
         ...providerBStreams.streams
       ],
       nextPageOffsets: {
-        [providerAStreams.source]: providerAStreams.nextPageOffset,
-        [providerBStreams.source]: providerBStreams.nextPageOffset
+        [providerAStreams.source]: '3',
+        [providerBStreams.source]: '2'
       }
     })
   })
 
+  await test.step("Given a list of provider streams it will return next page offsets only for those providers with more pages ", () => {
+    const providerAStreams: PlatformStreams = {
+      source: 'providerA',
+      streams: [
+        createStream('God of war'),
+      ],
+      nextPageOffset: Maybe.None()
+    }
 
+    const providerBStreams: PlatformStreams = {
+      source: 'providerB',
+      streams: [
+        createStream('The last of us'),
+      ],
+      nextPageOffset: Maybe.Some('2')
+    }
+
+    const aggregatedStreams = aggregateStreams([
+      providerAStreams,
+      providerBStreams,
+    ]);
+
+    assertObjectMatch(aggregatedStreams, {
+      nextPageOffsets: {
+        [providerBStreams.source]: '2'
+      }
+    })
+  })
+
+  await test.step("Given a list of provider streams it will return no next page offsets when all providers have none", () => {
+    const providerAStreams: PlatformStreams = {
+      source: 'providerA',
+      streams: [
+        createStream('God of war'),
+      ],
+      nextPageOffset: Maybe.None()
+    }
+
+    const aggregatedStreams = aggregateStreams([ providerAStreams ]);
+
+    assertObjectMatch(aggregatedStreams, {
+      nextPageOffsets: {}
+    })
+  })
 
   await test.step("Given no list of provider streams it returns an empty aggregated list of streams", () => {
     const aggregatedStreams = aggregateStreams([]);

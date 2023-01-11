@@ -2,6 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 import { TwitchUser } from "../../../../streaming-platform-gateways/twitch_helix_gateway.ts";
 import { updateStreamStreamerDetails } from "../twitch_update_stream_streamers_details.ts";
 import { PlatformStream, PlatformStreams } from "../../../../shared/types.ts"
+import { Maybe } from "../../../../shared/functors/maybe.ts";
 
 Deno.test('Update Twitch stream streamer details', async (test) => {
   const platformStreams: PlatformStreams = {
@@ -10,7 +11,7 @@ Deno.test('Update Twitch stream streamer details', async (test) => {
       createPlatformStream('God of war', 'streamer1'),
       createPlatformStream('Dark souls', 'streamer2'),
     ],
-    nextPageOffset: '0',
+    nextPageOffset: Maybe.None()
   }
 
   await test.step('It will update each streams with streamer name and avatar url', () => {

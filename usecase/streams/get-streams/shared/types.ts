@@ -1,3 +1,5 @@
+import { Maybe } from './functors/maybe.ts';
+
 export type Streamer = {
   id: string;
   name: string;
@@ -17,7 +19,7 @@ export type PlatformStream = {
 export type PlatformStreams = {
   source: string,
   streams: PlatformStream[],
-  nextPageOffset: string,
+  nextPageOffset: Maybe<string>,
 }
 
 export type AggregatedPageOffsets = {
