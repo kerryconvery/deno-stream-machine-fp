@@ -20,69 +20,35 @@ export type RequestOptions = {
   body?: string
 }
 
-export class Request {
-  private url: string;
-  private method: string;
+export type RequestMethod = 'GET' | 'POST'
 
-  private headers: Record<string, string> = {}
-  private body?: string;
-  
-  constructor(url: string, method: string) {
-    this.url = url;
-    this.method = method;
-  }
+export type RequestParams = {
+  url: string,
+  method: RequestMethod,
+  headers: Record<string, string>,
+  body?: string
+}
 
-  static createGetRequest<T>(url: string): Request {
-    return new Request(url, "GET");
-  }
+export function request<T>({ url, method, headers, body }: RequestParams): Promise<T> {
+  return fetch(url, {
+    method,
+    headers,
+    body
+  })
+  .then((response) => {
+    return getJsonResponse(response)
+  })
+  .then((json) => {
+    return json as T
+  })
+}
 
-  static createPostRequest<T>(url: string): Request {
-    return new Request(url, "POST");
-  }
-
-  setBody(body: string): Request {
-    this.body =body;
-    return this;
-  }
-
-  setHeader(name: string, value: string): Request {
-    this.headers[name] = value;
-    return this;
-  }
-
-  setHeaders(headers: Record<string, string>): Request {
-    this.headers = { ...this.headers, ...headers };
-    return this;
-  }
-
-  request<T>(): Promise<T> {
-    return  fetch(
-      this.url,
-      this.getRequestOptions()
-    )
-    .then((response) => {
-      return this.getJsonResponse(response)
-    })
-    .then((json) => {
-      return json as T
-    });
-  }
-
-  private getRequestOptions(): RequestOptions {
-    return {
-      method: this.method,
-      headers: this.headers,
-      body: this.body
-    }
-  }
-
-  private getJsonResponse(response: Response): Promise<unknown> {
-    return fork({
-      condition: response.ok,
-      left: () => Promise.reject(response),
-      right: () => response.json()
-     })
-  }
+function getJsonResponse(response: Response): Promise<unknown> {
+  return fork({
+    condition: response.ok,
+    left: () => Promise.reject(response),
+    right: () => response.json()
+   })
 }
 
 const _makeUrl = (url: string, urlParams: Record<string, string>): string => {
