@@ -1,4 +1,4 @@
-import { TwitchStream, TwitchStreams } from "../../../streaming-platform-gateways/twitch_helix_gateway.ts";
+import { TwitchStream, TwitchStreams } from "../../../streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 import { PlatformStream, PlatformStreams } from "../../../shared/types.ts";
 import { Maybe } from "../../../shared/functors/maybe.ts";
 

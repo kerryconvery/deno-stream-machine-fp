@@ -1,5 +1,5 @@
 import { Maybe } from "../../../shared/functors/maybe.ts";
-import { TwitchUser } from "../../../streaming-platform-gateways/twitch_helix_gateway.ts"
+import { TwitchUser } from "../../../streaming-platform-gateways/twitch/twitch_helix_gateway.ts"
 import { PlatformStream, PlatformStreams } from "../../../shared/types.ts"
 
 export function updateStreamStreamerDetails(platformStreams: PlatformStreams, streamers: TwitchUser[]): PlatformStreams {
