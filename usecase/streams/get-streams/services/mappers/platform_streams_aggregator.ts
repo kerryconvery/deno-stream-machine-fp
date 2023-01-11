@@ -1,8 +1,8 @@
 import { PlatformStreams,AggregatedStreams, noAggregatedStreams } from "../../shared/types.ts";
 
 export function aggregateStreams(
-    platformStreamsCollection: PlatformStreams[]
-  ): AggregatedStreams {
+  platformStreamsCollection: PlatformStreams[]
+): AggregatedStreams {
   const streams = platformStreamsCollection.reduce(
     (
       aggregatedStreams: AggregatedStreams,
@@ -17,10 +17,10 @@ export function aggregateStreams(
 }
 
 function addPlatformStreams(
-    aggregatedStreams: AggregatedStreams,
-    platformStreams: PlatformStreams
-  ): AggregatedStreams {
-  const { streams, source, nextPageOffset } = platformStreams;
+  aggregatedStreams: AggregatedStreams,
+  platformStreams: PlatformStreams
+): AggregatedStreams {
+const { streams, source, nextPageOffset } = platformStreams;
 
   return {
     streams: [
