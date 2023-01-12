@@ -1,6 +1,6 @@
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts"
 import { Option } from "/usecase/shared/functors/option.ts";
-import { TwitchStream } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { TwitchStream } from "../../streams_service.ts"
 import { mapTwitchStreamsToPlatformStreams } from "../twitch_helix_stream_mappers.ts"
 
 Deno.test('Twitch stream mapper', async (test) => {

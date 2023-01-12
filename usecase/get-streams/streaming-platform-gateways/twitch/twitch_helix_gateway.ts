@@ -1,32 +1,6 @@
 import { request } from "/usecase/shared/rest_client.ts";
 import { createAuthorizer, TwitchAuthHeaders } from "./authorisation.ts";
-
-export type TwitchStream = {
-  id: string,
-  user_id: string,
-  title: string,
-  game_name: string,
-  thumbnail_url: string,
-  viewer_count: number,
-  isLive: boolean,
-}
-
-export type TwitchStreams = {
-  data: TwitchStream[],
-  pagination: {
-    cursor?: string
-  }
-}
-
-export type TwitchUser = {
-  id: string,
-  display_name: string,
-  profile_image_url: string,
-}
-
-export type TwitchUsers = {
-  data: TwitchUser[],
-}
+import { TwitchStreams,TwitchUser,TwitchUsers } from "/usecase/get-streams/services/twitch/streams_service.ts";
 
 type TwitchHelixGatewayParams = {
   apiUrl: string,
@@ -36,15 +10,15 @@ type TwitchHelixGatewayParams = {
 }
 
 export function createTwitchHelixGateway(gatewayParams: TwitchHelixGatewayParams) {
-  const performRequest = createGetRequester(gatewayParams);
+  const authenticatedRequest = createAuthenticatedRequester(gatewayParams);
 
   return {
     getStreams: (): Promise<TwitchStreams> => {
-      return performRequest<TwitchStreams>(`/helix/streams`);
+      return authenticatedRequest<TwitchStreams>(`/helix/streams`);
     },
 
     getUsersById: (userIds: string[]): Promise<TwitchUser[]> => {
-      return performRequest<TwitchUsers>(`/helix/users?${joinUserIds(userIds)}`)
+      return authenticatedRequest<TwitchUsers>(`/helix/users?${joinUserIds(userIds)}`)
         .then((users: TwitchUsers) => {
           return users.data
         })
@@ -52,7 +26,7 @@ export function createTwitchHelixGateway(gatewayParams: TwitchHelixGatewayParams
   }
 }
 
-const createGetRequester = ({ apiUrl, authUrl, clientId, clientSecret }: TwitchHelixGatewayParams) => {
+const createAuthenticatedRequester = ({ apiUrl, authUrl, clientId, clientSecret }: TwitchHelixGatewayParams) => {
   const getAuthHeaders = createAuthorizer(authUrl, clientId, clientSecret);
 
   return <T>(endpoint: string) => {

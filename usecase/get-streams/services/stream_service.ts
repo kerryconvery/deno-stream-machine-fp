@@ -1,5 +1,5 @@
 import { Option } from '/usecase/shared/functors/option.ts';
-import { extractMaybeStreams } from "./mappers/extract_maybe_streams.ts";
+import { extractStreams } from "./mappers/extract_streams.ts";
 import { aggregateStreams } from "./mappers/platform_streams_aggregator.ts";
 
 export type Streamer = {
@@ -50,8 +50,8 @@ export type Streamer = {
 
 export function getAllStreams(...streamSources: Promise<Option<PlatformStreams>>[]): Promise<AggregatedStreams> {
   return Promise.all(streamSources)
-   .then((maybeStreams: Option<PlatformStreams>[]) => {
-      return extractMaybeStreams(maybeStreams)
+   .then((streams: Option<PlatformStreams>[]) => {
+      return extractStreams(streams)
    })
    .then((streams: PlatformStreams[]) => {
       return aggregateStreams(streams)

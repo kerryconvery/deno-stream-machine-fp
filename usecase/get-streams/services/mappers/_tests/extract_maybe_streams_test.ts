@@ -1,10 +1,10 @@
 import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 import { Option } from "/usecase/shared/functors/option.ts";
-import { extractMaybeStreams } from "../extract_maybe_streams.ts";
+import { extractStreams } from "../extract_streams.ts";
 import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
 
 Deno.test('Extract streams', async (test) => {
-  await test.step('Given a list of maybe streams it returns a list of streams', () => {
+  await test.step('Given a list of streams it returns a list of streams', () => {
     const providerAStreams: PlatformStreams = {
       source: 'providerA',
       streams: [
@@ -22,7 +22,7 @@ Deno.test('Extract streams', async (test) => {
       nextPageOffset: Option.Some('2')
     }
 
-    const streams = extractMaybeStreams([Option.Some(providerAStreams), Option.Some(providerBStreams)]);
+    const streams = extractStreams([Option.Some(providerAStreams), Option.Some(providerBStreams)]);
 
     assertEquals(streams, [
       providerAStreams,
@@ -30,13 +30,13 @@ Deno.test('Extract streams', async (test) => {
     ])
   })
 
-  await test.step('Given a list of none maybe streams it returns an empty list of streams', () => {
-    const streams = extractMaybeStreams([Option.None()]);
+  await test.step('Given a empty list of streams it returns an empty list of streams', () => {
+    const streams = extractStreams([Option.None()]);
 
     assertEquals(streams, [])
   })
 
-  await test.step('Given a list of maybe streams with none first it returns a list of streams', () => {
+  await test.step('Given a list of streams with none first it returns a list of streams', () => {
     const providerAStreams: PlatformStreams = {
       source: 'providerA',
       streams: [
@@ -46,14 +46,14 @@ Deno.test('Extract streams', async (test) => {
       nextPageOffset: Option.Some('3')
     }
 
-    const streams = extractMaybeStreams([Option.None(), Option.Some(providerAStreams)]);
+    const streams = extractStreams([Option.None(), Option.Some(providerAStreams)]);
 
     assertEquals(streams, [
       providerAStreams,
     ])
   })
 
-  await test.step('Given a list of maybe streams with none last it returns a list of streams', () => {
+  await test.step('Given a list of streams with none last it returns a list of streams', () => {
     const providerAStreams: PlatformStreams = {
       source: 'providerA',
       streams: [
@@ -63,7 +63,7 @@ Deno.test('Extract streams', async (test) => {
       nextPageOffset: Option.Some('3')
     }
 
-    const streams = extractMaybeStreams([Option.Some(providerAStreams), Option.None()]);
+    const streams = extractStreams([Option.Some(providerAStreams), Option.None()]);
 
     assertEquals(streams, [
       providerAStreams,

@@ -1,7 +1,7 @@
 import { Selector } from "./types.ts";
 
 export abstract class Option<T> {
-  public static toMaybe<T>(value?: T): Option<T> {
+  public static of<T>(value?: T): Option<T> {
     if (value) {
       return new Some(value)
     }
@@ -39,7 +39,7 @@ export class Some<T> extends Option<T> {
   }
 
   map<Result>(mapper: Selector<T,Result>): Option<Result> {
-    return Option.toMaybe(mapper(this._value));
+    return Option.of(mapper(this._value));
   }
 
   flatMap<Result>(mapper: Selector<T, Option<Result>>): Option<Result> {

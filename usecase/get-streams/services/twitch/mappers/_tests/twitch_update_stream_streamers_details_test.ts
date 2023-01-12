@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
-import { TwitchUser } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { TwitchUser } from "../../streams_service.ts"
 import { updateStreamStreamerDetails } from "../twitch_update_stream_streamers_details.ts";
 import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
 import { Option } from "/usecase/shared/functors/option.ts";

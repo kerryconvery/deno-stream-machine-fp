@@ -68,7 +68,7 @@ Deno.test("Stream aggreator service", async (test) => {
     })
   })
 
-  await test.step("Given a list of provider streams it will return no next page offsets when all providers have none", () => {
+  await test.step("Given a list of provider streams it will return no next page offsets when all providers have no more pages", () => {
     const providerAStreams: PlatformStreams = {
       source: 'providerA',
       streams: [

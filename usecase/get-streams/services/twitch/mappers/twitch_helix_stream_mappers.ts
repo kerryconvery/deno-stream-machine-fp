@@ -1,4 +1,4 @@
-import { TwitchStream, TwitchStreams } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { TwitchStream, TwitchStreams } from "../streams_service.ts"
 import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
 import { Option } from "/usecase/shared/functors/option.ts";
 
@@ -6,7 +6,7 @@ export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams):
   return {
     source: 'twitch',
     streams: twitchStreams.data.map(stream => toPlatformStream(stream)),
-    nextPageOffset: Option.toMaybe(twitchStreams.pagination.cursor)
+    nextPageOffset: Option.of(twitchStreams.pagination.cursor)
   }
 }
 
