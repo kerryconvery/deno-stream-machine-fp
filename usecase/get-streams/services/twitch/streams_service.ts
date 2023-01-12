@@ -7,8 +7,8 @@ import { PlatformStreams } from "/usecase/get-streams/services/stream_service.ts
 export type TwitchStream = {
   id: string,
   user_id: string,
+  user_login: string,
   title: string,
-  game_name: string,
   thumbnail_url: string,
   viewer_count: number,
   isLive: boolean,

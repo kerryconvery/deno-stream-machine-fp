@@ -4,7 +4,7 @@ import { TwitchStream } from "../../streams_service.ts"
 import { mapTwitchStreamsToPlatformStreams } from "../twitch_helix_stream_mappers.ts"
 
 Deno.test('Twitch stream mapper', async (test) => {
-  await test.step('Given a list of twitch streams it will return a list of  platform streams', () => {
+  await test.step('Given a list of twitch streams it will return a list of platform streams', () => {
     const mappedStreams = mapTwitchStreamsToPlatformStreams(
       {
         data: [
@@ -25,11 +25,11 @@ Deno.test('Twitch stream mapper', async (test) => {
           {
             id: 'stream1',
             title: 'God of war',
-            url: '',
+            url: 'https://www.twitch.tv/streamer1',
             views: 10,
             thumbnailUrl: 'thumbnail',
             streamer: {
-              id: 'streamer1',
+              id: '1',
               name: '',
               avatarUrl: ''
             },
@@ -38,11 +38,11 @@ Deno.test('Twitch stream mapper', async (test) => {
           {
             id: 'stream2',
             title: 'Dark souls',
-            url: '',
+            url: 'https://www.twitch.tv/streamer1',
             views: 10,
             thumbnailUrl: 'thumbnail',
             streamer: {
-              id: 'streamer1',
+              id: '1',
               name: '',
               avatarUrl: ''
             },
@@ -76,8 +76,8 @@ Deno.test('Twitch stream mapper', async (test) => {
     return {
       id: streamId,
       title,
-      user_id: 'streamer1',
-      game_name: '',
+      user_id: '1',
+      user_login: 'streamer1',
       thumbnail_url: 'thumbnail',
       viewer_count: 10,
       isLive: true,

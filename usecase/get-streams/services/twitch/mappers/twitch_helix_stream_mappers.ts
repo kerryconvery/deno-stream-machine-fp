@@ -15,7 +15,7 @@ function toPlatformStream(stream: TwitchStream): PlatformStream {
     id: stream.id,
     title: stream.title,
     thumbnailUrl: stream.thumbnail_url,
-    url: '',
+    url: `https://www.twitch.tv/${stream.user_login}`,
     streamer: {
       id: stream.user_id,
       name: '',
