@@ -1,14 +1,14 @@
-import { fork } from "../shared/functors/fork.ts";
-import { Maybe } from "../shared/functors/maybe.ts";
+import { fork } from "/usecase/shared/functors/fork.ts";
+import { Option } from "/usecase/shared/functors/option.ts";
 
 export type RestClientConfig = {
   apiUrl: string,
-  params: Maybe<Record<string, string>>,
+  params: Option<Record<string, string>>,
 }
 
 export const withParam = (paramName: string, paramValue: string) => (input: RestClientConfig): RestClientConfig => ({
   ...input,
-  params: Maybe.Some({
+  params: Option.Some({
     ...input.params,
     [paramName]: paramValue
   })

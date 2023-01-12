@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
-import { Maybe } from "../../../../../shared/functors/maybe.ts";
+import { Option } from "/usecase/shared/functors/option.ts";
 import { extractMaybeStreams } from "../extract_maybe_streams.ts";
-import { PlatformStream, PlatformStreams } from "../../../../../shared/types.ts";
+import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
 
 Deno.test('Extract streams', async (test) => {
   await test.step('Given a list of maybe streams it returns a list of streams', () => {
@@ -11,7 +11,7 @@ Deno.test('Extract streams', async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: Maybe.Some('3')
+      nextPageOffset: Option.Some('3')
     }
 
     const providerBStreams: PlatformStreams = {
@@ -19,10 +19,10 @@ Deno.test('Extract streams', async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: Maybe.Some('2')
+      nextPageOffset: Option.Some('2')
     }
 
-    const streams = extractMaybeStreams([Maybe.Some(providerAStreams), Maybe.Some(providerBStreams)]);
+    const streams = extractMaybeStreams([Option.Some(providerAStreams), Option.Some(providerBStreams)]);
 
     assertEquals(streams, [
       providerAStreams,
@@ -31,7 +31,7 @@ Deno.test('Extract streams', async (test) => {
   })
 
   await test.step('Given a list of none maybe streams it returns an empty list of streams', () => {
-    const streams = extractMaybeStreams([Maybe.None()]);
+    const streams = extractMaybeStreams([Option.None()]);
 
     assertEquals(streams, [])
   })
@@ -43,10 +43,10 @@ Deno.test('Extract streams', async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: Maybe.Some('3')
+      nextPageOffset: Option.Some('3')
     }
 
-    const streams = extractMaybeStreams([Maybe.None(), Maybe.Some(providerAStreams)]);
+    const streams = extractMaybeStreams([Option.None(), Option.Some(providerAStreams)]);
 
     assertEquals(streams, [
       providerAStreams,
@@ -60,10 +60,10 @@ Deno.test('Extract streams', async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: Maybe.Some('3')
+      nextPageOffset: Option.Some('3')
     }
 
-    const streams = extractMaybeStreams([Maybe.Some(providerAStreams), Maybe.None()]);
+    const streams = extractMaybeStreams([Option.Some(providerAStreams), Option.None()]);
 
     assertEquals(streams, [
       providerAStreams,

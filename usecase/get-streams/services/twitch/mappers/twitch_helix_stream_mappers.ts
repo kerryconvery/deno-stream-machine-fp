@@ -1,12 +1,12 @@
-import { TwitchStream, TwitchStreams } from "../../../streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
-import { PlatformStream, PlatformStreams } from "../../../../../shared/types.ts";
-import { Maybe } from "../../../../../shared/functors/maybe.ts";
+import { TwitchStream, TwitchStreams } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
+import { Option } from "/usecase/shared/functors/option.ts";
 
 export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams): PlatformStreams {
   return {
     source: 'twitch',
     streams: twitchStreams.data.map(stream => toPlatformStream(stream)),
-    nextPageOffset: Maybe.toMaybe(twitchStreams.pagination.cursor)
+    nextPageOffset: Option.toMaybe(twitchStreams.pagination.cursor)
   }
 }
 

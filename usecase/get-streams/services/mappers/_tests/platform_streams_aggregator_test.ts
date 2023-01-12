@@ -1,6 +1,6 @@
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts";
-import { Maybe } from "../../../../../shared/functors/maybe.ts";
-import { PlatformStream, PlatformStreams } from "../../../../../shared/types.ts"
+import { Option } from "/usecase/shared/functors/option.ts";
+import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
 import { aggregateStreams } from "../platform_streams_aggregator.ts"
 
 Deno.test("Stream aggreator service", async (test) => {
@@ -11,7 +11,7 @@ Deno.test("Stream aggreator service", async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: Maybe.Some('3')
+      nextPageOffset: Option.Some('3')
     }
 
     const providerBStreams: PlatformStreams = {
@@ -19,7 +19,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: Maybe.Some('2')
+      nextPageOffset: Option.Some('2')
     }
 
     const aggregatedStreams = aggregateStreams([
@@ -45,7 +45,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('God of war'),
       ],
-      nextPageOffset: Maybe.None()
+      nextPageOffset: Option.None()
     }
 
     const providerBStreams: PlatformStreams = {
@@ -53,7 +53,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: Maybe.Some('2')
+      nextPageOffset: Option.Some('2')
     }
 
     const aggregatedStreams = aggregateStreams([
@@ -74,7 +74,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('God of war'),
       ],
-      nextPageOffset: Maybe.None()
+      nextPageOffset: Option.None()
     }
 
     const aggregatedStreams = aggregateStreams([ providerAStreams ]);

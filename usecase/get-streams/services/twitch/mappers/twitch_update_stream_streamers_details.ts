@@ -1,6 +1,6 @@
-import { Maybe } from "../../../../../shared/functors/maybe.ts";
-import { TwitchUser } from "../../../streaming-platform-gateways/twitch/twitch_helix_gateway.ts"
-import { PlatformStream, PlatformStreams } from "../../../../../shared/types.ts"
+import { Option } from "/usecase/shared/functors/option.ts";
+import { TwitchUser } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts"
+import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
 
 export function updateStreamStreamerDetails(platformStreams: PlatformStreams, streamers: TwitchUser[]): PlatformStreams {
   return {
@@ -12,8 +12,8 @@ export function updateStreamStreamerDetails(platformStreams: PlatformStreams, st
   }
 }
 
-const maybeGetStreamer = (streamers: TwitchUser[], platformStream: PlatformStream): Maybe<TwitchUser> => {
-  return Maybe.toMaybe(streamers.find((user: TwitchUser) => user.id === platformStream.streamer.id));
+const maybeGetStreamer = (streamers: TwitchUser[], platformStream: PlatformStream): Option<TwitchUser> => {
+  return Option.toMaybe(streamers.find((user: TwitchUser) => user.id === platformStream.streamer.id));
 }
 
 function updateStreamerDetails(streamer: TwitchUser, platformStream: PlatformStream): PlatformStream {

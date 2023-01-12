@@ -1,6 +1,6 @@
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts"
-import { Maybe } from "../../../../../../shared/functors/maybe.ts";
-import { TwitchStream } from "../../../../streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { Option } from "/usecase/shared/functors/option.ts";
+import { TwitchStream } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 import { mapTwitchStreamsToPlatformStreams } from "../twitch_helix_stream_mappers.ts"
 
 Deno.test('Twitch stream mapper', async (test) => {
@@ -49,7 +49,7 @@ Deno.test('Twitch stream mapper', async (test) => {
             isLive: true,
           }
         ],
-        nextPageOffset: Maybe.Some('3')
+        nextPageOffset: Option.Some('3')
       }
     )
   })
@@ -67,7 +67,7 @@ Deno.test('Twitch stream mapper', async (test) => {
     assertObjectMatch(
       mappedStreams,
       {
-        nextPageOffset: Maybe.None()
+        nextPageOffset: Option.None()
       }
     )
   })

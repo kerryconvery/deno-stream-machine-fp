@@ -1,6 +1,6 @@
-import { Maybe } from "../../../../shared/functors/maybe.ts";
-import { request } from "../../../../shared/rest_client.ts";
-import { fork } from "../../../../shared/functors/fork.ts";
+import { Option } from "/usecase/shared/functors/option.ts";
+import { request } from "/usecase/shared/rest_client.ts";
+import { fork } from "/usecase/shared/functors/fork.ts";
 
 export type TwitchAuthHeaders = {
   'Client-Id': string;
@@ -48,7 +48,7 @@ function getNewAuthToken(authUrl: string, clientId: string, clientSecret: string
 }
 
 function createAuthTokenCache(getAuthToken: () => Promise<string>) {
-  let authToken: Maybe<string> = Maybe.None();
+  let authToken: Option<string> = Option.None();
   
   return function(): Promise<string> {
     return fork({
@@ -56,7 +56,7 @@ function createAuthTokenCache(getAuthToken: () => Promise<string>) {
       left: () => {
         return getAuthToken()
           .then((token: string) => {
-            authToken = Maybe.Some(token);
+            authToken = Option.Some(token);
             return token;
           })
       },
