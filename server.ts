@@ -1,8 +1,18 @@
-import { getStreamsHandler } from "./usecase/get-streams/handler.ts";
+import { Application } from "https://deno.land/x/oak/mod.ts";
+import { router } from "./routes.ts";
 
-console.log('getting streams');
+const app = new Application()
 
-await getStreamsHandler()
-  .then((streams) => {
-    console.log(streams);
-  })
+app.use(router.routes())
+app.use(router.allowedMethods())
+
+app.addEventListener("listen", ({ hostname, port, secure }) => {
+  console.log(
+    `Listening on: ${secure ? "https://" : "http://"}${
+      hostname ??
+        "localhost"
+    }:${port}`,
+  );
+})
+
+app.listen({ port: 3000 });
