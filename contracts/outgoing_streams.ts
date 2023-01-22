@@ -12,3 +12,8 @@ export interface OutgoingStreams {
   streams: OutgoingStream[];
   nextPageToken: string;
 }
+
+export const noOutgoingStreams: OutgoingStreams = {
+  streams: [],
+  nextPageToken: ''
+}

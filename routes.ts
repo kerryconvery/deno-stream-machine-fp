@@ -1,27 +1,37 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
+import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
+import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
+import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import { mapToOutgoingStreams } from "./contracts/mappers/streams_mapper.ts";
-import { OutgoingStreams } from "./contracts/outgoing_streams.ts";
-
-import { AggregatedStreams, getAllStreams } from "./usecase/get-streams/services/stream_service.ts";
-import { getTwitchStreams } from "./usecase/get-streams/services/twitch/streams_service.ts";
+import { noOutgoingStreams } from "./contracts/outgoing_streams.ts";
+import { aggregateStreams } from "./usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
+import { PlatformStreams } from "./usecase/get-streams/services/stream_service.ts";
+import { mapTwitchStreamsToPlatformStreams } from "./usecase/get-streams/services/twitch/mappers/twitch_helix_stream_mappers.ts";
+import { getTwitchPlatformStreams } from "./usecase/get-streams/stream-providers/twitch.ts";
 import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 
 export const router = new Router();
 
 router
   .get("/streams", async (context) => {
-    await getAllStreams(getTwitchStreams(getTwitchGateway()))
-      .then((streams: AggregatedStreams) => {
-        return mapToOutgoingStreams(streams);
-      })
-      .then((streams: OutgoingStreams) => {
-        context.response.body = streams;
-        context.response.status = 200; 
-      })
-      .catch((error) => {
-        console.error(error);
-        context.response.status = 500;
-      })
+    const twitchGateway = getTwitchGateway();
+
+    const twitchPlatformStreams = getTwitchPlatformStreams({
+      getTwitchStreams: twitchGateway.getStreams,
+      getTwitchUsersByIds: twitchGateway.getUsersById,
+      mapTwitchStreamsToPlatformStreams
+    });
+
+    const streams = await pipe(
+      twitchPlatformStreams(),
+      TO.map((platformStreams: PlatformStreams) => aggregateStreams([platformStreams])),
+      TO.map(mapToOutgoingStreams),
+      TO.getOrElse(() => T.of(noOutgoingStreams))
+    )();
+
+
+    context.response.body = streams;
+    context.response.status = 200;
   })
 
 const getTwitchGateway = () => {

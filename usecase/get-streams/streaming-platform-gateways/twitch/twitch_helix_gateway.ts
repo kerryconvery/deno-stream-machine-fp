@@ -1,6 +1,13 @@
+import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
+import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import { request } from "/usecase/shared/rest_client.ts";
 import { createAuthorizer, TwitchAuthHeaders } from "./authorisation.ts";
-import { TwitchStreams,TwitchUser,TwitchUsers } from "/usecase/get-streams/services/twitch/streams_service.ts";
+import { TwitchStreams,TwitchUser } from "../../stream-providers/twitch.ts";
+
+type TwitchUsers = {
+  data: TwitchUser[],
+}
 
 type TwitchHelixGatewayParams = {
   apiUrl: string,
@@ -13,15 +20,22 @@ export function createTwitchHelixGateway(gatewayParams: TwitchHelixGatewayParams
   const authenticatedRequest = createAuthenticatedRequester(gatewayParams);
 
   return {
-    getStreams: (): Promise<TwitchStreams> => {
-      return authenticatedRequest<TwitchStreams>(`/helix/streams`);
+    getStreams: (): TO.TaskOption<TwitchStreams> => {
+      return () =>  authenticatedRequest<TwitchStreams>(`/helix/streams`)
+        .then((streams: TwitchStreams) => {
+          return O.some(streams)
+        })
+        .catch(() => {
+          return O.none
+        })
     },
 
-    getUsersById: (userIds: string[]): Promise<TwitchUser[]> => {
-      return authenticatedRequest<TwitchUsers>(`/helix/users?${joinUserIds(userIds)}`)
+    getUsersById: (userIds: string[]): T.Task<TwitchUser[]> => {
+      return () => authenticatedRequest<TwitchUsers>(`/helix/users?${joinUserIds(userIds)}`)
         .then((users: TwitchUsers) => {
           return users.data
         })
+        .catch(() => [])
     }
   }
 }

@@ -25,6 +25,7 @@ export abstract class Option<T> {
   }
 
   abstract map<Result>(mapper: Selector<T, Result>): Option<Result>;
+  abstract mapAsync<Result>(mapper: Selector<T, Promise<Result>>): Promise<Option<Result>>;
   abstract flatMap<Result>(mapper: Selector<T, Option<Result>>): Option<Result>;
   abstract getValue(fallbackValue: T): T;
   abstract getValueAs<Result>(right: (value: T) => Result, left: () => Result): Result;
@@ -40,6 +41,10 @@ export class Some<T> extends Option<T> {
 
   map<Result>(mapper: Selector<T,Result>): Option<Result> {
     return Option.of(mapper(this._value));
+  }
+
+  mapAsync<Result>(mapper: Selector<T,Promise<Result>>): Promise<Option<Result>> {
+    return mapper(this._value).then((result) => Option.of(result));
   }
 
   flatMap<Result>(mapper: Selector<T, Option<Result>>): Option<Result> {
@@ -58,6 +63,10 @@ export class Some<T> extends Option<T> {
 export class None<T> extends Option<T> {
   map<Result>(_mapper: Selector<T,Result>): Option<Result> {
     return new None<Result>();
+  }
+
+  mapAsync<Result>(_mapper: Selector<T,Promise<Result>>): Promise<Option<Result>> {
+    return Promise.resolve(new None<Result>());
   }
 
   flatMap<Result>(_mapper: Selector<T,Option<Result>>): Option<Result> {

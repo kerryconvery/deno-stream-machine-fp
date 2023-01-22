@@ -23,10 +23,29 @@ Deno.test("Option monad", async (test) =>{
     assertEquals(some.getValue(), "new some")
   })
 
+  await test.step("Given an async mapper it will apply the mapper and return Some", async () => {
+    const some = await Option<string>
+      .of("some")
+      .mapAsync((_input: string) => Promise.resolve("new some"))
+
+    
+    assertInstanceOf(some, Some<string>);
+    assertEquals(some.getValue(), "new some")
+  })
+
   await test.step("Given a mapper it will apply the mapper and return None", () => {
     const none = Option<string>
       .of("some")
       .map((_input: string) => undefined)
+
+    assertInstanceOf(none, None<string>);
+    assertEquals(none.getValue("none"), "none")
+  })
+
+  await test.step("Given an async mapper it will apply the mapper and return None", async () => {
+    const none = await Option<string>
+      .of("some")
+      .mapAsync((_input: string) => Promise.resolve(undefined))
 
     assertInstanceOf(none, None<string>);
     assertEquals(none.getValue("none"), "none")

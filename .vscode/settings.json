@@ -3,5 +3,10 @@
   "deno.importMap": "import_map.json",
   "go.alternateTools": {
   
-  }
+  },
+  "deno.codeLens.testArgs": [
+    "--allow-all",
+    "--no-check",
+    "--unstable"
+  ]
 }
