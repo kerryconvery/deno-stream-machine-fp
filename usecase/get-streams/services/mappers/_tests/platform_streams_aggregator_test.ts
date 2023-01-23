@@ -1,7 +1,7 @@
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts";
-import { Option } from "/usecase/shared/functors/option.ts";
-import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
+import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { aggregateStreams } from "../platform_streams_aggregator.ts"
+import { PlatformStreams,PlatformStream } from "../../../stream-providers/types.ts";
 
 Deno.test("Stream aggreator service", async (test) => {
   await test.step("Given a list of provider streams it returns an aggregatoed list of streams", () => {
@@ -11,7 +11,7 @@ Deno.test("Stream aggreator service", async (test) => {
         createStream('God of war'),
         createStream('Dark souls'),
       ],
-      nextPageOffset: Option.Some('3')
+      nextPageOffset: O.some('3')
     }
 
     const providerBStreams: PlatformStreams = {
@@ -19,7 +19,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: Option.Some('2')
+      nextPageOffset: O.some('2')
     }
 
     const aggregatedStreams = aggregateStreams([
@@ -45,7 +45,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('God of war'),
       ],
-      nextPageOffset: Option.None()
+      nextPageOffset: O.none
     }
 
     const providerBStreams: PlatformStreams = {
@@ -53,7 +53,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('The last of us'),
       ],
-      nextPageOffset: Option.Some('2')
+      nextPageOffset: O.some('2')
     }
 
     const aggregatedStreams = aggregateStreams([
@@ -74,7 +74,7 @@ Deno.test("Stream aggreator service", async (test) => {
       streams: [
         createStream('God of war'),
       ],
-      nextPageOffset: Option.None()
+      nextPageOffset: O.none
     }
 
     const aggregatedStreams = aggregateStreams([ providerAStreams ]);

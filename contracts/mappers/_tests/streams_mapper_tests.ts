@@ -1,6 +1,6 @@
 
 import { assertEquals } from "https://deno.land/std@0.172.0/testing/asserts.ts";
-import { AggregatedStreams } from "../../../usecase/get-streams/services/stream_service.ts";
+import { AggregatedStreams } from "../../../usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
 import { mapToOutgoingStreams } from "../streams_mapper.ts";
 
 Deno.test("Streams mapper", async (test) => {

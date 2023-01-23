@@ -5,10 +5,10 @@ import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import { mapToOutgoingStreams } from "./contracts/mappers/streams_mapper.ts";
 import { noOutgoingStreams } from "./contracts/outgoing_streams.ts";
 import { aggregateStreams } from "./usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
-import { PlatformStreams } from "./usecase/get-streams/services/stream_service.ts";
 import { mapTwitchStreamsToPlatformStreams } from "./usecase/get-streams/services/twitch/mappers/twitch_helix_stream_mappers.ts";
 import { getTwitchPlatformStreams } from "./usecase/get-streams/stream-providers/twitch.ts";
 import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { PlatformStreams } from "./usecase/get-streams/stream-providers/types.ts";
 
 export const router = new Router();
 

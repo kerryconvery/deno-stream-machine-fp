@@ -1,6 +1,6 @@
 import { TwitchStream, TwitchStreams, TwitchUser } from "../../../stream-providers/twitch.ts";
-import { PlatformStream, PlatformStreams } from "/usecase/get-streams/services/stream_service.ts"
-import { Option } from "/usecase/shared/functors/option.ts";
+import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import { PlatformStreams, PlatformStream } from "../../../stream-providers/types.ts";
 
 export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams, twitchUsers: TwitchUser[]): PlatformStreams {
   return {
@@ -10,7 +10,7 @@ export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams, 
 
       return toPlatformStream(stream, streamer ?? blankStreamer)
     }),
-    nextPageOffset: Option.of(twitchStreams.pagination.cursor)
+    nextPageOffset: O.fromNullable(twitchStreams.pagination.cursor)
   }
 }
 

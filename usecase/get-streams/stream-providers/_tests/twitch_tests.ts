@@ -6,8 +6,8 @@ import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import { Option } from "../../../shared/functors/option.ts";
-import { PlatformStreams } from "../../services/stream_service.ts";
 import { getTwitchPlatformStreams, TwitchStreams, TwitchUser } from "../twitch.ts";
+import { PlatformStreams } from "../types.ts";
 
 Deno.test("Twitch streams provider", async (test) => {
     const twitchStreams = {
@@ -40,7 +40,7 @@ Deno.test("Twitch streams provider", async (test) => {
     const mapTwitchStreamsToPlatformStreamsSpy = spy((_streams: TwitchStreams, _streamers: TwitchUser[]): PlatformStreams => ({
       source: '',
       streams: [],
-      nextPageOffset: Option.None(),
+      nextPageOffset: O.none,
     }));
     await test.step('Given a list of twitch streams it will return a list of platform streams', async () => {
       const getTwitchPlatformStreamsTask = getTwitchPlatformStreams({

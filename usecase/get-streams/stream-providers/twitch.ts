@@ -1,8 +1,7 @@
-// import { Option } from "../../shared/functors/option.ts";
-import { PlatformStreams } from "../services/stream_service.ts";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
+import { PlatformStreams } from "./types.ts";
 
 export type TwitchStream = {
   id: string,
