@@ -5,7 +5,6 @@ import {
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
-import { Option } from "../../../shared/functors/option.ts";
 import { getTwitchPlatformStreams, TwitchStreams, TwitchUser } from "../twitch.ts";
 import { PlatformStreams } from "../types.ts";
 
@@ -35,8 +34,8 @@ Deno.test("Twitch streams provider", async (test) => {
       },
     ];
 
-    const getTwitchStreamsSpy = spy((): TO.TaskOption<TwitchStreams> => () => Promise.resolve(O.some(twitchStreams)));
-    const getTwitchUsersByIdsSpy = spy((_userIds: string[]): T.Task<TwitchUser[]> => () => Promise.resolve(twitchUsers));
+    const getTwitchStreamsSpy = spy((): TO.TaskOption<TwitchStreams> => TO.some(twitchStreams));
+    const getTwitchUsersByIdsSpy = spy((_userIds: string[]): T.Task<TwitchUser[]> => T.of(twitchUsers));
     const mapTwitchStreamsToPlatformStreamsSpy = spy((_streams: TwitchStreams, _streamers: TwitchUser[]): PlatformStreams => ({
       source: '',
       streams: [],

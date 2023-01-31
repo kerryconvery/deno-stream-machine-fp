@@ -7,8 +7,11 @@ import { noOutgoingStreams } from "./contracts/outgoing_streams.ts";
 import { aggregateStreams } from "./usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
 import { mapTwitchStreamsToPlatformStreams } from "./usecase/get-streams/services/twitch/mappers/twitch_helix_stream_mappers.ts";
 import { getTwitchPlatformStreams } from "./usecase/get-streams/stream-providers/twitch.ts";
-import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 import { PlatformStreams } from "./usecase/get-streams/stream-providers/types.ts";
+import { twitchRequestAuthoriser } from "./usecase/get-streams/streaming-platform-gateways/twitch/request_authoriser.ts";
+import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { fetchRequest } from "./usecase/shared/fetch_request.ts";
+import { twitchAuthenticatedRequest } from "./usecase/get-streams/streaming-platform-gateways/twitch/authenticated_request.ts";
 
 export const router = new Router();
 
@@ -35,11 +38,23 @@ router
   })
 
 const getTwitchGateway = () => {
-  return createTwitchHelixGateway({
-    apiUrl: Deno.env.get("TWITCH_API_URL") ?? '',
+  const request = fetchRequest(fetch);
+
+  const authorisedRequest = twitchRequestAuthoriser({
     authUrl: Deno.env.get("TWITCH_AUTH_URL") ?? '',
     clientId: Deno.env.get("TWITCH_CLIENT_ID") ?? '',
     clientSecret: Deno.env.get("TWITCH_CLIENT_SECRET") ?? '',
-  });
+    request, 
+  })
+
+  const twitchClient = twitchAuthenticatedRequest({
+    clientId: Deno.env.get("TWITCH_CLIENT_ID") ?? '',
+    getAccessToken: authorisedRequest,
+    request,
+  })
+
+  return createTwitchHelixGateway({
+    apiUrl: Deno.env.get("TWITCH_API_URL") ?? '',
+    authorisedRequest: twitchClient
+  })
 }
-  
