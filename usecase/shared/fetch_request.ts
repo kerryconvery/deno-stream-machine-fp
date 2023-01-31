@@ -43,7 +43,7 @@ export class UnsupportedError extends RequestFailure {}
 
 export const fetchRequest = (
   fetch: (url: string, init: RequestInit) => Promise<Response>
-) => <T>(
+) => (
   params: RequestParams
 ): TE.TaskEither<RequestFailure, RequestSuccess> => {
    return pipe(
@@ -52,7 +52,7 @@ export const fetchRequest = (
       bind("headers", () => params.headers),
       bind("body", () => params.body),
       TE.fromOption(() => TE.left),
-      TE.chain((values) => invokeRequest<T>(fetch, params.url, values))
+      TE.chain((values) => invokeRequest(fetch, params.url, values))
    )
 }
 
@@ -70,7 +70,7 @@ function bind(name: string, binder: () => O.Option<unknown>) {
   )
 }
 
-function invokeRequest<T>(
+function invokeRequest(
   fetch: (url: string, init: RequestInit) => Promise<Response>,
   url: string,
   options: Record<string, unknown>
@@ -86,7 +86,7 @@ function invokeRequest<T>(
         return Promise.reject(new HttpError(response.status, "Error"))
       }
 
-      return  getSuccessResponse<T>(response)
+      return  getSuccessResponse(response)
     },
     (error) => getFailedResponse(error)
   )

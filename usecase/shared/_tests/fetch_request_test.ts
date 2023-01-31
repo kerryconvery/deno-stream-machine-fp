@@ -20,7 +20,7 @@ Deno.test("Rest client", async (test) => {
     } as Response));
 
     const requestTask = pipe(
-      fetchRequest(fetch)<string>(requestParams),
+      fetchRequest(fetch)(requestParams),
       TE.getOrElseW<RequestFailure, RequestFailure>((error) => T.of(error)),
     )()
 
@@ -37,7 +37,7 @@ Deno.test("Rest client", async (test) => {
       json: () => Promise.resolve("result"),
     } as Response));
 
-    await fetchRequest(fetch)<string>({...requestParams, headers: O.some({ "header-key": "header-value" })})();
+    await fetchRequest(fetch)({...requestParams, headers: O.some({ "header-key": "header-value" })})();
     
     assertSpyCall(fetch, 0, { args: ["url", { method: "GET", headers: { 'header-key': 'header-value'} }] });
   })
@@ -47,7 +47,7 @@ Deno.test("Rest client", async (test) => {
       json: () => Promise.resolve("result"),
     } as Response));
 
-    await fetchRequest(fetch)<string>({...requestParams, headers: O.none, body: O.some("request body") })();
+    await fetchRequest(fetch)({...requestParams, headers: O.none, body: O.some("request body") })();
     
     assertSpyCall(fetch, 0, { args: ["url", { method: "GET", body: "request body" }] });
   })
@@ -58,7 +58,7 @@ Deno.test("Rest client", async (test) => {
     } as Response));
 
     const requestTask = pipe(
-      fetchRequest(fetch)<string>(requestParams),
+      fetchRequest(fetch)(requestParams),
       TE.getOrElseW<RequestFailure, RequestFailure>((error) => T.of(error)),
     )
 
@@ -74,7 +74,7 @@ Deno.test("Rest client", async (test) => {
     } as Response));
 
     const requestTask = pipe(
-      fetchRequest(fetch)<string>(requestParams),
+      fetchRequest(fetch)(requestParams),
       TE.getOrElseW<RequestFailure, RequestFailure>((error) => T.of(error)),
     )
 
@@ -90,7 +90,7 @@ Deno.test("Rest client", async (test) => {
     } as Response));
 
     const requestTask = pipe(
-      fetchRequest(fetch)<string>(requestParams),
+      fetchRequest(fetch)(requestParams),
       TE.getOrElseW<RequestFailure, RequestFailure>((error) => T.of(error)),
     )
 
@@ -106,7 +106,7 @@ Deno.test("Rest client", async (test) => {
     } as Response));
 
     const requestTask = pipe(
-      fetchRequest(fetch)<string>(requestParams),
+      fetchRequest(fetch)(requestParams),
       TE.getOrElseW<RequestFailure, RequestFailure>((error) => T.of(error)),
     )
 
@@ -123,7 +123,7 @@ Deno.test("Rest client", async (test) => {
       } as Response));
   
       const requestTask = pipe(
-        fetchRequest(fetch)<string>(requestParams),
+        fetchRequest(fetch)(requestParams),
         TE.getOrElseW<RequestFailure, RequestFailure>((error) => T.of(error)),
       )
   
