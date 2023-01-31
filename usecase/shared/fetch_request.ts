@@ -51,10 +51,8 @@ export const fetchRequest = (
       bind("method", () => O.some(params.method)),
       bind("headers", () => params.headers),
       bind("body", () => params.body),
-      O.match(
-        () => TE.left(new UnsupportedError()),
-        (values) => invokeRequest<T>(fetch, params.url, values)
-      )
+      TE.fromOption(() => TE.left),
+      TE.chain((values) => invokeRequest<T>(fetch, params.url, values))
    )
 }
 
