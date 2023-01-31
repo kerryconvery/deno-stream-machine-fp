@@ -4,8 +4,8 @@ import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import { mapToOutgoingStreams } from "./contracts/mappers/streams_mapper.ts";
 import { noOutgoingStreams } from "./contracts/outgoing_streams.ts";
-import { aggregateStreams } from "./usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
-import { mapTwitchStreamsToPlatformStreams } from "./usecase/get-streams/services/twitch/mappers/twitch_helix_stream_mappers.ts";
+import { aggregateStreams } from "./usecase/get-streams/mappers/platform_streams_aggregator.ts";
+import { mapTwitchStreamsToPlatformStreams } from "./usecase/get-streams/mappers/twitch/twitch_helix_stream_mappers.ts";
 import { getTwitchPlatformStreams } from "./usecase/get-streams/stream-providers/twitch.ts";
 import { PlatformStreams } from "./usecase/get-streams/stream-providers/types.ts";
 import { twitchRequestAuthoriser } from "./usecase/get-streams/streaming-platform-gateways/twitch/request_authoriser.ts";

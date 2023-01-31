@@ -1,6 +1,6 @@
-import { TwitchStream, TwitchStreams, TwitchUser } from "../../../stream-providers/twitch.ts";
+import { TwitchStream, TwitchStreams, TwitchUser } from "../../stream-providers/twitch.ts";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
-import { PlatformStreams, PlatformStream } from "../../../stream-providers/types.ts";
+import { PlatformStreams, PlatformStream } from "../../stream-providers/types.ts";
 
 export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams, twitchUsers: TwitchUser[]): PlatformStreams {
   return {

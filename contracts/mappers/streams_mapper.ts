@@ -1,4 +1,4 @@
-import { AggregatedStreams,AggregatedStream } from "../../usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
+import { AggregatedStreams,AggregatedStream } from "../../usecase/get-streams/mappers/platform_streams_aggregator.ts";
 import { OutgoingStream, OutgoingStreams } from "../outgoing_streams.ts";
 
 export function mapToOutgoingStreams(aggregatedStreams: AggregatedStreams): OutgoingStreams {

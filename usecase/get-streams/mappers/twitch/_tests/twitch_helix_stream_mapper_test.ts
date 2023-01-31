@@ -1,7 +1,7 @@
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts"
 import { mapTwitchStreamsToPlatformStreams } from "../twitch_helix_stream_mappers.ts"
-import { TwitchStream } from "../../../../stream-providers/twitch.ts";
+import { TwitchStream } from "../../../stream-providers/twitch.ts";
 
 Deno.test('Twitch stream mapper', async (test) => {
   await test.step('Given a list of twitch streams it will return a list of platform streams', () => {

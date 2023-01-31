@@ -1,6 +1,6 @@
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
-import { PlatformStreams } from "../../stream-providers/types.ts";
+import { PlatformStreams } from "../stream-providers/types.ts";
 
 export type AggregatedStreamStreamer = {
   id: string;
