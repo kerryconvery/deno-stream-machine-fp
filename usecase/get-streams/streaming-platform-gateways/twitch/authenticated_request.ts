@@ -49,12 +49,13 @@ function includeAuthorisationHeaders(clientId: string, accessToken: string, requ
       () => requestParams.headers,
     ),
     O.map((headers: Record<string, string>) => ({
+      ...headers,
+      'Client-Id': clientId,
+      'Authorization': `Bearer ${accessToken}`,
+    })),
+    O.map((headers: Record<string, string>) => ({
       ...requestParams,
-      headers: O.some({
-        ...headers,
-        'Client-Id': clientId,
-        'Authorization': `Bearer ${accessToken}`,
-      })
+      headers: O.some(headers),
     })),
     O.getOrElse(() => ({
       ...requestParams,
