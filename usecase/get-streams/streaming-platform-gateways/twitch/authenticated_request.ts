@@ -32,28 +32,32 @@ export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }
         TE.right
       ),
       TE.chain((token: TwitchAuthorisationToken) => {
-        return request(withAuthorisation(clientId, token.getAccessToken(), params))
+        return pipe(
+          includeAuthorisationHeaders(clientId, token.getAccessToken(), params),
+          request
+        )
       }),
     )
   }
 }
 
-function withAuthorisation(clientId: string, accessToken: string, requestParams: RequestParams): RequestParams {
-  const headers = pipe(
+function includeAuthorisationHeaders(clientId: string, accessToken: string, requestParams: RequestParams): RequestParams {
+  return pipe(
     requestParams.headers,
     O.match(
       () => O.some<Record<string, string>>({}),
       () => requestParams.headers,
     ),
     O.map((headers: Record<string, string>) => ({
-      ...headers,
-      'Client-Id': clientId,
-      'Authorization': `Bearer ${accessToken}`,
+      ...requestParams,
+      headers: O.some({
+        ...headers,
+        'Client-Id': clientId,
+        'Authorization': `Bearer ${accessToken}`,
+      })
     })),
-  )   
-
-  return {
-    ...requestParams,
-    headers,
-  }
+    O.getOrElse(() => ({
+      ...requestParams,
+    }))
+  )
 }
