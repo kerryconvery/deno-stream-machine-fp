@@ -2,7 +2,7 @@ import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
-import { RequestFailure, RequestParams, RequestSuccess } from "../../../shared/fetch_request.ts";
+import { RequestFailure, RequestParams, RequestSuccess, RequestMethod } from "../../../shared/fetch_request.ts";
 import { TwitchStreams, TwitchUser } from "../../stream-providers/twitch.ts";
 import { pipe } from "https://esm.sh/v103/fp-ts@2.13.1/lib/function";
 
@@ -23,30 +23,30 @@ export interface TwitchHelixGateway {
 export function createTwitchHelixGateway({ apiUrl, authorisedRequest }: TwitchHelixGatewayParams): TwitchHelixGateway {
   return {
     getStreams: (): TO.TaskOption<TwitchStreams> => {
-      const requestParams: RequestParams = {
-        url: `${apiUrl}/helix/streams`,
-        method: 'GET',
-        headers: O.none,
-        body: O.none,
-      };
-
       return pipe(
-        authorisedRequest<TwitchStreams>(requestParams),
+        TE.Do,
+        TE.bind('url', () => TE.right(`${apiUrl}/helix/streams`)),
+        TE.bind('method', () => TE.right('GET' as RequestMethod)),
+        TE.bind('headers', () => TE.right(O.none)),
+        TE.bind('body', () => TE.right(O.none)),
+        TE.chain((requestParams) => {
+          return authorisedRequest<TwitchStreams>(requestParams)
+        }),
         TO.fromTaskEither,
         TO.map((result: RequestSuccess) => result.getData() as TwitchStreams)
       )
     },
 
     getUsersById: (userIds: string[]): T.Task<TwitchUser[]> => {
-      const requestParams: RequestParams = {
-        url: `${apiUrl}/helix/users?${joinUserIds(userIds)}`,
-        method: 'GET',
-        headers: O.none,
-        body: O.none,
-      };
-
       return pipe(
-        authorisedRequest<TwitchUsers>(requestParams),
+        TE.Do,
+        TE.bind('url', () => TE.right(`${apiUrl}/helix/users?${joinUserIds(userIds)}`)),
+        TE.bind('method', () => TE.right('GET' as RequestMethod)),
+        TE.bind('headers', () => TE.right(O.none)),
+        TE.bind('body', () => TE.right(O.none)),
+        TE.chain((requestParams) => {
+          return authorisedRequest<TwitchUsers>(requestParams)
+        }),
         TE.fold(
           () => T.of([]),
           (result: RequestSuccess) => T.of((result.getData() as TwitchUsers).data)

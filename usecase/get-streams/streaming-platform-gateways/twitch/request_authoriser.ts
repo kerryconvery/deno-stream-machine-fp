@@ -2,7 +2,7 @@
 import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
-import { RequestFailure, RequestParams, RequestSuccess } from "../../../shared/fetch_request.ts";
+import { RequestFailure, RequestParams, RequestSuccess, RequestMethod } from "../../../shared/fetch_request.ts";
 
 export type TwitchAuthResponse = {
   access_token: string,
@@ -10,10 +10,8 @@ export type TwitchAuthResponse = {
   token_type: string,
 }
 
-export type AuthorisationRequestResponse = TE.TaskEither<RequestFailure, RequestSuccess>;
-
 export type TwitchAuthoriserParams = {
-  request: (params: RequestParams) => AuthorisationRequestResponse;
+  request: (params: RequestParams) => TE.TaskEither<RequestFailure, RequestSuccess>;
   clientId: string;
   clientSecret: string;
   authUrl: string;
@@ -47,18 +45,15 @@ export const twitchRequestAuthoriser = ({
   clientSecret,
   request
 }: TwitchAuthoriserParams) => (): TE.TaskEither<TwitchAuthorisationFailed, TwitchAuthorisationToken> => {
-  const requestParams: RequestParams = {
-    url: `${authUrl}/oauth2/token`,
-    method: "POST",
-    headers: O.some({
-       "Content-Type": "application/x-www-form-urlencoded",
-    }),
-    body: O.some(`client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`),
-  }
-  
   return pipe(
-    requestParams,
-    request,
+    TE.Do,
+    TE.bind('url', () => TE.right(`${authUrl}/oauth2/token`)),
+    TE.bind('method', () => TE.right('POST' as RequestMethod)),
+    TE.bind('headers', () => TE.right(O.some({ 'Content-Type': 'application/x-www-form-urlencoded' }))),
+    TE.bind('body', () => TE.right(O.some(`client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`))),
+    TE.chain((requestParams) => {
+      return request(requestParams)
+    }),
     TE.map((response: RequestSuccess) => {
       return mapToTwitchAuthoriserResult(response.getData() as TwitchAuthResponse);
     }),

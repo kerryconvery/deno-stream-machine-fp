@@ -57,17 +57,19 @@ export const fetchRequest = (
 }
 
 function bind(name: string, binder: () => O.Option<unknown>) {
-  return (accOptions: O.Option<Record<string, unknown>>): O.Option<Record<string, unknown>> => pipe(
-    binder(),
-    O.match(
-      () => O.getOrElse<Record<string, unknown>>(() => ({}))(accOptions),
-      (value: unknown) => {
-        const existingOptions = O.getOrElse<Record<string, unknown>>(() => ({}))(accOptions);
-        return { ...existingOptions, [name]: value}
-      }
-    ),
-    O.of
-  )
+  return (accOptions: O.Option<Record<string, unknown>>): O.Option<Record<string, unknown>> => {
+    return pipe(
+      binder(),
+      O.match(
+        () => O.getOrElse<Record<string, unknown>>(() => ({}))(accOptions),
+        (value: unknown) => {
+          const existingOptions = O.getOrElse<Record<string, unknown>>(() => ({}))(accOptions);
+          return { ...existingOptions, [name]: value}
+        }
+      ),
+      O.of
+    )
+  }
 }
 
 function invokeRequest(

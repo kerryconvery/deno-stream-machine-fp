@@ -13,25 +13,29 @@ export interface TwitchAuthenticatedRequestParams {
 export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }: TwitchAuthenticatedRequestParams) => {
   let cachedToken: O.Option<TwitchAuthorisationToken> = O.none;
 
-  const cacheNewAccessToken = () => pipe(
-    getAccessToken(),
-    TE.map((authorisationToken: TwitchAuthorisationToken) => {
-      cachedToken = O.some(authorisationToken);
-      return authorisationToken
-    }),
-    TE.mapLeft(() => new UnauthorizedRequest()),
-  )
+  const cacheNewAccessToken = () => {
+    return pipe(
+      getAccessToken(),
+      TE.map((authorisationToken: TwitchAuthorisationToken) => {
+        cachedToken = O.some(authorisationToken);
+        return authorisationToken
+      }),
+      TE.mapLeft(() => new UnauthorizedRequest()),
+    )
+  }
 
-  return (params: RequestParams): TE.TaskEither<RequestFailure, RequestSuccess> => pipe(
-    cachedToken,
-    O.match(
-      cacheNewAccessToken,
-      TE.right
-    ),
-    TE.chain((token: TwitchAuthorisationToken) => {
-      return request(withAuthorisation(clientId, token.getAccessToken(), params))
-    }),
-  )
+  return (params: RequestParams): TE.TaskEither<RequestFailure, RequestSuccess> => {
+    return pipe(
+      cachedToken,
+      O.match(
+        cacheNewAccessToken,
+        TE.right
+      ),
+      TE.chain((token: TwitchAuthorisationToken) => {
+        return request(withAuthorisation(clientId, token.getAccessToken(), params))
+      }),
+    )
+  }
 }
 
 function withAuthorisation(clientId: string, accessToken: string, requestParams: RequestParams): RequestParams {
