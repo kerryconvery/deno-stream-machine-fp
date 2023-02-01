@@ -33,7 +33,8 @@ export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }
       ),
       TE.chain((token: TwitchAuthorisationToken) => {
         return pipe(
-          includeAuthorisationHeaders(clientId, token.getAccessToken(), params),
+          params,
+          includeAuthorisationHeaders(clientId, token.getAccessToken()),
           request
         )
       }),
@@ -41,24 +42,26 @@ export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }
   }
 }
 
-function includeAuthorisationHeaders(clientId: string, accessToken: string, requestParams: RequestParams): RequestParams {
-  return pipe(
-    requestParams.headers,
-    O.match(
-      () => O.some<Record<string, string>>({}),
-      () => requestParams.headers,
-    ),
-    O.map((headers: Record<string, string>) => ({
-      ...headers,
-      'Client-Id': clientId,
-      'Authorization': `Bearer ${accessToken}`,
-    })),
-    O.map((headers: Record<string, string>) => ({
-      ...requestParams,
-      headers: O.some(headers),
-    })),
-    O.getOrElse(() => ({
-      ...requestParams,
-    }))
-  )
+function includeAuthorisationHeaders(clientId: string, accessToken: string) {
+  return (requestParams: RequestParams): RequestParams => {
+    return pipe(
+      requestParams.headers,
+      O.match(
+        () => O.some<Record<string, string>>({}),
+        () => requestParams.headers,
+      ),
+      O.map((headers: Record<string, string>) => ({
+        ...headers,
+        'Client-Id': clientId,
+        'Authorization': `Bearer ${accessToken}`,
+      })),
+      O.map((headers: Record<string, string>) => ({
+        ...requestParams,
+        headers: O.some(headers),
+      })),
+      O.getOrElse(() => ({
+        ...requestParams,
+      }))
+    )
+  }
 }
