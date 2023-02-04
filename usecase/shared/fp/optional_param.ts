@@ -8,33 +8,33 @@ export function of<A>(value: A): OptionalParam<A> {
 
 export const none: OptionalParam<never> = O.none as OptionalParam<never>
 
-export function isNone(paramOption: OptionalParam<unknown>): boolean {
-  return O.isNone(paramOption)
+export function isNone(optionalParam: OptionalParam<unknown>): boolean {
+  return O.isNone(optionalParam)
 }
 
 export function some<A>(value: A): OptionalParam<A> {
   return O.some(value);
 }
 
-export function isSome<A>(paramOption: OptionalParam<A>): boolean {
-  return O.isSome(paramOption);
+export function isSome<A>(optionalParam: OptionalParam<A>): boolean {
+  return O.isSome(optionalParam);
 }
 
 export function match<A, B>(onNone: () => B, onSome: (value: A) => B) {
-  return (paramOption: OptionalParam<A>): B => {
-    return O.match<A, B>(onNone, onSome)(paramOption);
+  return (optionalParam: OptionalParam<A>): B => {
+    return O.match<A, B>(onNone, onSome)(optionalParam);
   }
 }
 
 export function map<A, B>(mapper: (a: A) => B) {
-  return (paramOption: OptionalParam<A>): OptionalParam<B> => {
-    return O.map(mapper)(paramOption);
+  return (optionalParam: OptionalParam<A>): OptionalParam<B> => {
+    return O.map(mapper)(optionalParam);
   }
 }
 
 export function getOrElse<A>(onNone: () => A) {
-  return (paramOption: OptionalParam<A>): A => {
-    return O.getOrElse(onNone)(paramOption);
+  return (optionalParam: OptionalParam<A>): A => {
+    return O.getOrElse(onNone)(optionalParam);
   }
 }
 
@@ -54,3 +54,6 @@ export function bind<A, B>(name: string, getValue: () => OptionalParam<B>) {
   }
 }
 
+export function toOption<A>(optionalParam: OptionalParam<A>): O.Option<A> {
+  return optionalParam;
+}

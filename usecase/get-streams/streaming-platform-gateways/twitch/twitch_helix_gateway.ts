@@ -37,7 +37,8 @@ export function createTwitchHelixGateway({ apiUrl, authorisedRequest }: TwitchHe
         TE.bind('queryParams', () => TE.right(pipe(
           OP.Do,
           OP.bind('cursor', () => pageOffset),
-          OP.map((params) => params as Record<string, string>)
+          OP.map((params) => params as Record<string, string>),
+          OP.toOption
         ))),
         TE.bind('body', () => TE.right(O.none)),
         TE.chain((requestParams) => {

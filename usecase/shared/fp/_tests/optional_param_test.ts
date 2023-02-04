@@ -1,4 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.152.0/testing/asserts.ts'
+import * as O from "https://esm.sh/fp-ts@2.13.1/Option"
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import { assertSpyCall, assertSpyCalls, spy } from "https://deno.land/std@0.172.0/testing/mock.ts";
 import * as OP from '../optional_param.ts'
@@ -92,5 +93,23 @@ Deno.test("Option Param", async (test) => {
 
     assertSpyCall(mapper, 0, { args: [1] })
     assertEquals(result, 2);
+  })
+
+  await test.step("It will return an option some", () => {
+    const some = pipe(
+      OP.of(1),
+      OP.toOption,
+    )
+
+    assertEquals(O.isSome(some), true);
+  })
+
+  await test.step("It will return an option none", () => {
+    const none = pipe(
+      OP.none,
+      OP.toOption,
+    )
+
+    assertEquals(O.isNone(none), true);
   })
 })
