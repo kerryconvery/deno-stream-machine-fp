@@ -11,6 +11,7 @@ Deno.test("Rest client", async (test) => {
     url: "url",
     method: "GET",
     headers: O.none,
+    queryParams: O.none,
     body: O.none,
   }
 
@@ -40,6 +41,25 @@ Deno.test("Rest client", async (test) => {
     await fetchRequest(fetch)({...requestParams, headers: O.some({ "header-key": "header-value" })})();
     
     assertSpyCall(fetch, 0, { args: ["url", { method: "GET", headers: { 'header-key': 'header-value'} }] });
+  })
+
+  await test.step("Given a request with query parameter it will include them in the url", async () => {
+    const fetch = spy(() => Promise.resolve({
+      json: () => Promise.resolve("result"),
+    } as Response));
+
+    await fetchRequest(fetch)({
+      ...requestParams,
+      queryParams: O.some({
+        "param-key-1": "param-value-1",
+        "param-key-2": "param-value-2",
+      })})();
+    
+    assertSpyCall(fetch, 0, { args: [
+        "url?param-key-1=param-value-1&param-key-2=param-value-2",
+        { method: "GET" }
+      ]
+    });
   })
 
   await test.step("Given a request body it will include the body in the request", async () => {

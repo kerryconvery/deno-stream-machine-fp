@@ -1,13 +1,15 @@
-import { AggregatedStreams,AggregatedStream } from "../../usecase/get-streams/mappers/platform_streams_aggregator.ts";
+import { AggregatedStreams,AggregatedStream, AggregatedPageOffsets } from "../../usecase/get-streams/mappers/platform_streams_aggregator.ts";
 import { OutgoingStream, OutgoingStreams } from "../outgoing_streams.ts";
 
-export function mapToOutgoingStreams(aggregatedStreams: AggregatedStreams): OutgoingStreams {
-  const outgoingStreams = {
-    streams: aggregatedStreams.streams.map((stream: AggregatedStream) => mapToOutgoingStream(stream)),
-    nextPageToken: packNextPageOffsets(aggregatedStreams.nextPageOffsets)
-  }
+export function mapToOutgoingStreams(packPageOffsets: (pageOffsets: AggregatedPageOffsets) => string) {
+  return (aggregatedStreams: AggregatedStreams): OutgoingStreams => {
+    const outgoingStreams = {
+      streams: aggregatedStreams.streams.map((stream: AggregatedStream) => mapToOutgoingStream(stream)),
+      nextPageToken: packPageOffsets(aggregatedStreams.nextPageOffsets)
+    }
 
-  return outgoingStreams;
+    return outgoingStreams;
+  }
 }
 
 function mapToOutgoingStream(aggregatedStream: AggregatedStream): OutgoingStream {
@@ -20,15 +22,4 @@ function mapToOutgoingStream(aggregatedStream: AggregatedStream): OutgoingStream
     isLive: aggregatedStream.isLive,
     views: aggregatedStream.views
   }
-}
-
-function packNextPageOffsets(nextPageOffsets: Record<string, string>): string {
-  return Object.entries(nextPageOffsets).reduce(
-    (nextPageTokens: string[], [provider, offset]: [string, string]) => {
-      nextPageTokens.push(`${provider}:${offset}`);
-
-      return nextPageTokens;
-    },
-    []
-  ).join(',')
 }

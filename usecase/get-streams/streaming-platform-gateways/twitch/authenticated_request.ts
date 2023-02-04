@@ -1,6 +1,7 @@
 import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
+import * as OP from "/usecase/shared/fp/optional_param.ts";
 import { TwitchAuthorisationFailed, TwitchAuthorisationToken } from "./request_authoriser.ts";
 import { RequestFailure, RequestParams, RequestSuccess, UnauthorizedRequest } from "../../../shared/fetch_request.ts";
 
@@ -46,20 +47,20 @@ function includeAuthorisationHeaders(clientId: string, accessToken: string) {
   return (requestParams: RequestParams): RequestParams => {
     return pipe(
       requestParams.headers,
-      O.match(
-        () => O.some<Record<string, string>>({}),
+      OP.match(
+        () => OP.some<Record<string, string>>({}),
         () => requestParams.headers,
       ),
-      O.map((headers: Record<string, string>) => ({
+      OP.map((headers: Record<string, string>) => ({
         ...headers,
         'Client-Id': clientId,
         'Authorization': `Bearer ${accessToken}`,
       })),
-      O.map((headers: Record<string, string>) => ({
+      OP.map((headers: Record<string, string>) => ({
         ...requestParams,
-        headers: O.some(headers),
+        headers: OP.some(headers),
       })),
-      O.getOrElse(() => ({
+      OP.getOrElse(() => ({
         ...requestParams,
       }))
     )

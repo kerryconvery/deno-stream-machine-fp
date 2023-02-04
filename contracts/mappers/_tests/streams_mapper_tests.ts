@@ -1,11 +1,11 @@
 
 import { assertEquals } from "https://deno.land/std@0.172.0/testing/asserts.ts";
-import { AggregatedStreams } from "../../../usecase/get-streams/services/mappers/platform_streams_aggregator.ts";
+import { AggregatedStreams } from "../../../usecase/get-streams/mappers/platform_streams_aggregator.ts";
+import { packPageTokens } from "../pack_token_pack.ts";
 import { mapToOutgoingStreams } from "../streams_mapper.ts";
 
 Deno.test("Streams mapper", async (test) => {
   await test.step("Given a list of aggregated streams, it maps them to streams", () => {
-
     const aggregatedStreams: AggregatedStreams = {
       streams: [
         {
@@ -41,7 +41,7 @@ Deno.test("Streams mapper", async (test) => {
       }
     };
 
-    const outgoingStreams = mapToOutgoingStreams(aggregatedStreams);
+    const outgoingStreams = mapToOutgoingStreams(packPageTokens)(aggregatedStreams);
 
     assertEquals(outgoingStreams, {
       streams: [

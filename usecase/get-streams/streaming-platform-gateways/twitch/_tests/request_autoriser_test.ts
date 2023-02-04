@@ -36,6 +36,7 @@ Deno.test("Twitch authoriser", async (test) => {
         headers: O.some({
           'Content-Type': 'application/x-www-form-urlencoded'
         }),
+        queryParams: O.none,
         body: O.some(`client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`)
       }]
     });

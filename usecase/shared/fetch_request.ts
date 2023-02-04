@@ -4,11 +4,15 @@ import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 
 export type RequestMethod = 'GET' | 'POST'
 
-export type RequestParams = {
-  url: string,
+type InvokeParams = {
   method: RequestMethod,
   headers: O.Option<Record<string, string>>,
   body: O.Option<string>,
+}
+
+export type RequestParams = InvokeParams & {
+  url: string,
+  queryParams: O.Option<Record<string, string>>,
 }
 
 export abstract class RequestResponse {}
@@ -48,41 +52,37 @@ export const fetchRequest = (
 ): TE.TaskEither<RequestFailure, RequestSuccess> => {
    return pipe(
       O.Do,
-      bind("method", () => O.some(params.method)),
-      bind("headers", () => params.headers),
-      bind("body", () => params.body),
+      O.bind("method", () => O.some(params.method)),
+      O.bind("headers", () => O.some(params.headers)),
+      O.bind("body", () => O.some(params.body)),
       TE.fromOption(() => TE.left),
-      TE.chain((values) => invokeRequest(fetch, params.url, values))
+      TE.chain((requestInit) => pipe(
+        TE.Do,
+        TE.bind("url", () => TE.right(buildUrl(params.url, params.queryParams))),
+        TE.bind("requestInit", () => TE.right(requestInit)),
+        TE.chain(({ url, requestInit }) => invokeRequest(fetch, url, requestInit))
+      ))
    )
 }
 
-function bind(name: string, binder: () => O.Option<unknown>) {
-  return (accOptions: O.Option<Record<string, unknown>>): O.Option<Record<string, unknown>> => {
-    return pipe(
-      binder(),
-      O.match(
-        () => O.getOrElse<Record<string, unknown>>(() => ({}))(accOptions),
-        (value: unknown) => {
-          const existingOptions = O.getOrElse<Record<string, unknown>>(() => ({}))(accOptions);
-          return { ...existingOptions, [name]: value}
-        }
-      ),
-      O.of
+function buildUrl(url: string, queryParams: O.Option<Record<string, string>>): string {
+  return pipe(
+    queryParams,
+    O.fold(
+      () => url,
+      (queryParams) => `${url}?${new URLSearchParams(queryParams).toString()}`
     )
-  }
+  )
 }
 
 function invokeRequest(
-  fetch: (url: string, init: RequestInit) => Promise<Response>,
+  fetch: (url: string, options: RequestInit) => Promise<Response>,
   url: string,
-  options: Record<string, unknown>
+  invokeParams: InvokeParams,
 ): TE.TaskEither<RequestFailure, RequestSuccess> {
   return TE.tryCatch(
     async () => {
-      const response = await fetch(
-        url,
-        options
-      );
+      const response = await fetch(url, toRequestInit(invokeParams));
 
       if (response.status >= 400) {
         return Promise.reject(new HttpError(response.status, "Error"))
@@ -92,6 +92,20 @@ function invokeRequest(
     },
     (error) => getFailedResponse(error)
   )
+}
+
+function toRequestInit(invokeParams: InvokeParams): RequestInit {
+  return {
+    method: invokeParams.method,
+    ...O.match(
+      () => ({}),
+      (headers) => ({ headers })
+    )(invokeParams.headers),
+    ...O.match(
+      () => ({}),
+      (body) => ({ body })
+    )(invokeParams.body),
+  }
 }
 
 function getFailedResponse(error: unknown): RequestFailure {

@@ -2,6 +2,7 @@ import { Router } from "https://deno.land/x/oak/mod.ts";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
+import * as OP from "/usecase/shared/fp/optional_param.ts";
 import { mapToOutgoingStreams } from "./contracts/mappers/streams_mapper.ts";
 import { noOutgoingStreams } from "./contracts/outgoing_streams.ts";
 import { aggregateStreams } from "./usecase/get-streams/mappers/platform_streams_aggregator.ts";
@@ -12,6 +13,7 @@ import { twitchRequestAuthoriser } from "./usecase/get-streams/streaming-platfor
 import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 import { fetchRequest } from "./usecase/shared/fetch_request.ts";
 import { twitchAuthenticatedRequest } from "./usecase/get-streams/streaming-platform-gateways/twitch/authenticated_request.ts";
+import { packPageTokens } from "./contracts/mappers/pack_token_pack.ts";
 
 export const router = new Router();
 
@@ -20,7 +22,7 @@ router
     const twitchGateway = getTwitchGateway();
 
     const twitchPlatformStreams = getTwitchPlatformStreams({
-      getTwitchStreams: twitchGateway.getStreams,
+      getTwitchStreams: twitchGateway.getStreams({ pageOffset: OP.none }),
       getTwitchUsersByIds: twitchGateway.getUsersById,
       mapTwitchStreamsToPlatformStreams
     });
@@ -28,7 +30,7 @@ router
     const streams = await pipe(
       twitchPlatformStreams(),
       TO.map((platformStreams: PlatformStreams) => aggregateStreams([platformStreams])),
-      TO.map(mapToOutgoingStreams),
+      TO.map(mapToOutgoingStreams(packPageTokens)),
       TO.getOrElse(() => T.of(noOutgoingStreams))
     )();
 

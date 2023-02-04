@@ -2,7 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.172.0/testing/asserts.ts";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
-import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import * as OP from "/usecase/shared/fp/optional_param.ts";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import { RequestFailure, RequestSuccess, UnsupportedError } from "../../../../shared/fetch_request.ts";
 import { createTwitchHelixGateway } from "../twitch_helix_gateway.ts";
@@ -30,14 +30,48 @@ Deno.test("Twitch gateway", async (test) => {
 
     const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(twitchStreams)));
     
-    await twitchGateway.getStreams()();
+    await twitchGateway.getStreams({ pageOffset: OP.none })()();
 
     assertSpyCall(request, 0, { args: [
       {
         url: 'https://api.twitch.com/helix/streams',
         method: 'GET',
-        headers: O.none,
-        body: O.none,
+        headers: OP.none,
+        body: OP.none,
+        queryParams: OP.none
+      }]
+    });
+  });
+
+  await test.step("Given a page offset it will include it in the request", async () => {
+    const twitchStreams = {
+      data: [
+        {
+          id: 'stream1',
+          title: 'God of war',
+          user_id: '1',
+          user_login: 'streamer1',
+          thumbnail_url: 'thumbnail',
+          viewer_count: 10,
+          isLive: true,
+        }
+      ],
+      pagination: {
+        cursor: '3'
+      }
+    };
+
+    const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(twitchStreams)));
+    
+    await twitchGateway.getStreams({ pageOffset: OP.some('abc123') })()();
+
+    assertSpyCall(request, 0, { args: [
+      {
+        url: 'https://api.twitch.com/helix/streams',
+        method: 'GET',
+        headers: OP.none,
+        body: OP.none,
+        queryParams: OP.some({ cursor: 'abc123' })
       }]
     });
   });
@@ -62,7 +96,7 @@ Deno.test("Twitch gateway", async (test) => {
     const { twitchGateway } = makeMockGateway(TE.right(new RequestSuccess(twitchStreams)));
     
     const streams = await pipe(
-        twitchGateway.getStreams(),
+      twitchGateway.getStreams({ pageOffset: OP.none })(),
         TO.getOrElse(() => T.of<TwitchStreams>({ data: [], pagination: { cursor: '' } })),
     )()
 
@@ -73,7 +107,7 @@ Deno.test("Twitch gateway", async (test) => {
     const { twitchGateway } = makeMockGateway(TE.left(new UnsupportedError()));
     
     const streams = await pipe(
-        twitchGateway.getStreams(),
+        twitchGateway.getStreams({ pageOffset: OP.none })(),
         TO.getOrElse(() => T.of<TwitchStreams>({ data: [], pagination: { cursor: '' } })),
     )()
 
@@ -90,8 +124,9 @@ Deno.test("Twitch gateway", async (test) => {
       {
         url: 'https://api.twitch.com/helix/users?id=1&id=2&id=3',
         method: 'GET',
-        headers: O.none,
-        body: O.none,
+        headers: OP.none,
+        body: OP.none,
+        queryParams: OP.none
       }]
     });
   });
