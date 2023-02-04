@@ -12,7 +12,7 @@ type InvokeParams = {
 
 export type RequestParams = InvokeParams & {
   url: string,
-  queryParams: O.Option<Record<string, string>>,
+  queryParams: O.Option<Record<string, unknown>>,
 }
 
 export abstract class RequestResponse {}
@@ -65,14 +65,18 @@ export const fetchRequest = (
    )
 }
 
-function buildUrl(url: string, queryParams: O.Option<Record<string, string>>): string {
+function buildUrl(url: string, queryParams: O.Option<Record<string, unknown>>): string {
   return pipe(
     queryParams,
     O.fold(
       () => url,
-      (queryParams) => `${url}?${new URLSearchParams(queryParams).toString()}`
+      (queryParams) => `${url}?${joinQueryParams(queryParams)}`
     )
   )
+}
+
+function joinQueryParams(queryParams: Record<string, unknown>): string {
+  return Object.entries(queryParams).map(([key, value]) => `${key}=${value}`).join('&')
 }
 
 function invokeRequest(
