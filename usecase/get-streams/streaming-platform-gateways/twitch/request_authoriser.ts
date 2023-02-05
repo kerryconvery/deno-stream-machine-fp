@@ -17,9 +17,9 @@ export type TwitchAuthoriserParams = {
   authUrl: string;
 }
 
-export class TwitchAuthorisationResult {}
+export class TwitchAuthenticationResult {}
 
-export class TwitchAuthorisationToken extends TwitchAuthorisationResult {
+export class TwitchAuthorisationToken extends TwitchAuthenticationResult {
   constructor(private accessToken: string, private expiresIn: number, private tokenType: string) {
     super();
   }
@@ -37,14 +37,14 @@ export class TwitchAuthorisationToken extends TwitchAuthorisationResult {
   }
 }
 
-export class TwitchAuthorisationFailed extends TwitchAuthorisationResult {}
+export class TwitchAuthenticationFailed extends TwitchAuthenticationResult {}
 
 export const twitchRequestAuthoriser = ({
   authUrl,
   clientId,
   clientSecret,
   request
-}: TwitchAuthoriserParams) => (): TE.TaskEither<TwitchAuthorisationFailed, TwitchAuthorisationToken> => {
+}: TwitchAuthoriserParams) => (): TE.TaskEither<TwitchAuthenticationFailed, TwitchAuthorisationToken> => {
   return pipe(
     TE.Do,
     TE.bind('url', () => TE.right(`${authUrl}/oauth2/token`)),
@@ -58,7 +58,7 @@ export const twitchRequestAuthoriser = ({
     TE.map((response: RequestSuccess) => {
       return mapToTwitchAuthoriserResult(response.getData() as TwitchAuthResponse);
     }),
-    TE.mapLeft(() => new TwitchAuthorisationFailed()),
+    TE.mapLeft(() => new TwitchAuthenticationFailed()),
   )
 }
 

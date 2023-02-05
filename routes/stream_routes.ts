@@ -5,24 +5,26 @@ import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import * as A from "https://esm.sh/fp-ts@2.13.1/Array";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import * as OP from "/usecase/shared/fp/optional_param.ts";
-import { mapToOutgoingStreams } from "./contracts/mappers/streams_mapper.ts";
-import { noOutgoingStreams } from "./contracts/outgoing_streams.ts";
-import { aggregateStreams } from "./usecase/get-streams/mappers/platform_streams_aggregator.ts";
-import { mapTwitchStreamsToPlatformStreams } from "./usecase/get-streams/mappers/twitch/twitch_helix_stream_mappers.ts";
-import { getTwitchPlatformStreams } from "./usecase/get-streams/stream-providers/twitch.ts";
-import { PlatformStreams } from "./usecase/get-streams/stream-providers/types.ts";
-import { twitchRequestAuthoriser } from "./usecase/get-streams/streaming-platform-gateways/twitch/request_authoriser.ts";
-import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
-import { fetchRequest } from "./usecase/shared/fetch_request.ts";
-import { twitchAuthenticatedRequest } from "./usecase/get-streams/streaming-platform-gateways/twitch/authenticated_request.ts";
-import { packPageTokens, unpackPageToken } from "./contracts/mappers/pack_token_pack.ts";
+import { mapToOutgoingStreams } from "/contracts/mappers/streams_mapper.ts";
+import { noOutgoingStreams } from "/contracts/outgoing_streams.ts";
+import { aggregateStreams } from "/usecase/get-streams/mappers/platform_streams_aggregator.ts";
+import { mapTwitchStreamsToPlatformStreams } from "/usecase/get-streams/mappers/twitch/twitch_helix_stream_mappers.ts";
+import { getTwitchPlatformStreams } from "/usecase/get-streams/stream-providers/twitch.ts";
+import { PlatformStreams } from "/usecase/get-streams/stream-providers/types.ts";
+import { twitchRequestAuthoriser } from "/usecase/get-streams/streaming-platform-gateways/twitch/request_authoriser.ts";
+import { createTwitchHelixGateway } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
+import { fetchRequest } from "/usecase/shared/fetch_request.ts";
+import { twitchAuthenticatedRequest } from "/usecase/get-streams/streaming-platform-gateways/twitch/authenticated_request.ts";
+import { packPageTokens, unpackPageToken } from "/contracts/mappers/pack_token_pack.ts";
 
 export const router = new Router();
+
+const twitchGateway = getTwitchGateway();
 
 router
   .get("/streams", async (context) => {
     const streams = await pipe(
-      O.fromNullable(context.request.url.searchParams.get('pageToken')),
+      O.fromNullable(context.request.url.searchParams.get('pagetoken')),
       O.map(unpackPageToken),
       O.match(
         () => createStreamProviders({}),
@@ -45,9 +47,7 @@ function createStreamProviders(pageOffsets: Record<string, string>): StreamProvi
   return [createTwitchStreamProvider(pageOffsets)];
 }
 
-function createTwitchStreamProvider(pageOffsets: Record<string, string>): StreamProvider {
-  const twitchGateway = getTwitchGateway();
-  
+function createTwitchStreamProvider(pageOffsets: Record<string, string>): StreamProvider {  
   return getTwitchPlatformStreams({
     getTwitchStreams: twitchGateway.getStreams({ pageOffset: OP.fromNullable(pageOffsets['twitch']) }),
     getTwitchUsersByIds: twitchGateway.getUsersById,
@@ -55,7 +55,7 @@ function createTwitchStreamProvider(pageOffsets: Record<string, string>): Stream
   });
 }
 
-const getTwitchGateway = () => {
+function getTwitchGateway() {
   const request = fetchRequest(fetch);
 
   const authorisedRequest = twitchRequestAuthoriser({

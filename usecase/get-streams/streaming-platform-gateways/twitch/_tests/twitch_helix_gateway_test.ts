@@ -130,6 +130,7 @@ Deno.test("Twitch gateway", async (test) => {
       }]
     });
   });
+  
   await test.step("Given that the request to the twitch service succeeds it will return a list of users", async () => {
     const twitchUsers = [
       {
