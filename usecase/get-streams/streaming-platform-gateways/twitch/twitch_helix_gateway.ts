@@ -7,7 +7,6 @@ import * as OP from "/usecase/shared/fp/optional_param.ts";
 import { RequestFailure, RequestParams, RequestSuccess, RequestMethod } from "../../../shared/fetch_request.ts";
 import { TwitchStreams, TwitchUser } from "../../stream-providers/twitch.ts";
 
-
 export type TwitchUsers = {
   data: TwitchUser[],
 }

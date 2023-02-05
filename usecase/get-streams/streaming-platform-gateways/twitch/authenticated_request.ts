@@ -40,8 +40,8 @@ export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }
     return pipe(
       getTokenFromCache(),
       O.match(
-        cacheNewAccessToken,
-        TE.right
+        () => cacheNewAccessToken(),
+        (authorisationToken: TwitchAuthorisationToken) => TE.right(authorisationToken)
       ),
       TE.chain((token: TwitchAuthorisationToken) => {
         return pipe(
