@@ -112,4 +112,24 @@ Deno.test("Option Param", async (test) => {
 
     assertEquals(O.isNone(none), true);
   })
+
+  await test.step("Given null it will return none", () => {
+    const none = OP.fromNullable(null)
+
+    assertEquals(OP.isNone(none), true);
+  })
+
+  await test.step("Given undefined it will return none", () => {
+    const none = OP.fromNullable(undefined)
+
+    assertEquals(OP.isNone(none), true);
+  })
+
+  await test.step("Given something it will return some", () => {
+    const some = OP.fromNullable(1)
+
+    assertEquals(OP.isSome(some), true);
+  })
+
+
 })

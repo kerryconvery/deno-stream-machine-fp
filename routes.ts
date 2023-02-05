@@ -1,6 +1,8 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
+import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import * as A from "https://esm.sh/fp-ts@2.13.1/Array";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import * as OP from "/usecase/shared/fp/optional_param.ts";
 import { mapToOutgoingStreams } from "./contracts/mappers/streams_mapper.ts";
@@ -13,31 +15,45 @@ import { twitchRequestAuthoriser } from "./usecase/get-streams/streaming-platfor
 import { createTwitchHelixGateway } from "./usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 import { fetchRequest } from "./usecase/shared/fetch_request.ts";
 import { twitchAuthenticatedRequest } from "./usecase/get-streams/streaming-platform-gateways/twitch/authenticated_request.ts";
-import { packPageTokens } from "./contracts/mappers/pack_token_pack.ts";
+import { packPageTokens, unpackPageToken } from "./contracts/mappers/pack_token_pack.ts";
 
 export const router = new Router();
 
 router
   .get("/streams", async (context) => {
-    const twitchGateway = getTwitchGateway();
-
-    const twitchPlatformStreams = getTwitchPlatformStreams({
-      getTwitchStreams: twitchGateway.getStreams({ pageOffset: OP.none }),
-      getTwitchUsersByIds: twitchGateway.getUsersById,
-      mapTwitchStreamsToPlatformStreams
-    });
-
     const streams = await pipe(
-      twitchPlatformStreams(),
-      TO.map((platformStreams: PlatformStreams) => aggregateStreams([platformStreams])),
+      O.fromNullable(context.request.url.searchParams.get('pageToken')),
+      O.map(unpackPageToken),
+      O.match(
+        () => createStreamProviders({}),
+        (pageOffsets) => createStreamProviders(pageOffsets),
+      ),
+      A.map((streamProvider) => streamProvider()),
+      TO.sequenceArray,
+      TO.map((platformStreamsCollection: readonly PlatformStreams[]) => aggregateStreams(platformStreamsCollection)),
       TO.map(mapToOutgoingStreams(packPageTokens)),
       TO.getOrElse(() => T.of(noOutgoingStreams))
     )();
 
-
     context.response.body = streams;
     context.response.status = 200;
   })
+
+type StreamProvider = () => TO.TaskOption<PlatformStreams>;
+
+function createStreamProviders(pageOffsets: Record<string, string>): StreamProvider[] {
+  return [createTwitchStreamProvider(pageOffsets)];
+}
+
+function createTwitchStreamProvider(pageOffsets: Record<string, string>): StreamProvider {
+  const twitchGateway = getTwitchGateway();
+  
+  return getTwitchPlatformStreams({
+    getTwitchStreams: twitchGateway.getStreams({ pageOffset: OP.fromNullable(pageOffsets['twitch']) }),
+    getTwitchUsersByIds: twitchGateway.getUsersById,
+    mapTwitchStreamsToPlatformStreams
+  });
+}
 
 const getTwitchGateway = () => {
   const request = fetchRequest(fetch);

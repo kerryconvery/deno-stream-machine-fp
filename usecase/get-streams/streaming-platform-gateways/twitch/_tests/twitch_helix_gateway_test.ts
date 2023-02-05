@@ -71,7 +71,7 @@ Deno.test("Twitch gateway", async (test) => {
         method: 'GET',
         headers: OP.none,
         body: OP.none,
-        queryParams: OP.some({ cursor: 'abc123' })
+        queryParams: OP.some({ after: 'abc123' })
       }]
     });
   });

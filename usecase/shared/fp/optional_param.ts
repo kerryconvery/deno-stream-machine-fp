@@ -57,3 +57,7 @@ export function bind<A, B>(name: string, getValue: () => OptionalParam<B>) {
 export function toOption<A>(optionalParam: OptionalParam<A>): O.Option<A> {
   return optionalParam;
 }
+
+export function fromNullable<A>(value: A | null | undefined): OptionalParam<A> {
+  return O.fromNullable(value);
+}

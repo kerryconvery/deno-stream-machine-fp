@@ -33,7 +33,7 @@ export const noAggregatedStreams: AggregatedStreams = {
 }
 
 export function aggregateStreams(
-  platformStreamsCollection: PlatformStreams[]
+  platformStreamsCollection: readonly PlatformStreams[]
 ): AggregatedStreams {
   const streams = platformStreamsCollection.reduce(
     (

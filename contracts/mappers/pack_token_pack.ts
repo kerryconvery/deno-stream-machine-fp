@@ -1,5 +1,3 @@
-// An exported function that unpacks a packed page token
-
 export function unpackPageToken(packedPageToken: string): Record<string, string> {
   return packedPageToken
     .split(",")
