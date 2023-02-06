@@ -2,7 +2,7 @@ import { assertEquals, assertInstanceOf } from "https://deno.land/std@0.172.0/te
 import { assertSpyCall, assertSpyCalls, spy } from "https://deno.land/std@0.172.0/testing/mock.ts";
 import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
-import * as OP from "/usecase/shared/fp/optional_param.ts";
+import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import { twitchAuthenticatedRequest } from "../authenticated_request.ts";
 import { TwitchAuthenticationFailed, TwitchAuthorisationToken } from "../request_authoriser.ts";
@@ -15,9 +15,9 @@ Deno.test("Twitch authenticated request", async (test) => {
   const requestParams: RequestParams = {
     url: "url",
     method: "GET",
-    headers: OP.none,
-    queryParams: OP.none,
-    body: OP.none 
+    headers: O.none,
+    queryParams: O.none,
+    body: O.none 
   }
 
   await test.step("Given a request it will first obtain an access token", async () => {
@@ -62,12 +62,12 @@ Deno.test("Twitch authenticated request", async (test) => {
       {
         url: "url",
         method: "GET",
-        headers: OP.some({
+        headers: O.some({
           'Client-Id': clientId,
           'Authorization': `Bearer ${authorisationToken.getAccessToken()}`,
         }),
-        queryParams: OP.none,
-        body: OP.none,
+        queryParams: O.none,
+        body: O.none,
       }
     ]});
 
@@ -75,12 +75,12 @@ Deno.test("Twitch authenticated request", async (test) => {
       {
         url: "url",
         method: "GET",
-        headers: OP.some({
+        headers: O.some({
           'Client-Id': clientId,
           'Authorization': `Bearer ${renewedAuthorisationToken.getAccessToken()}`,
         }),
-        queryParams: OP.none,
-        body: OP.none,
+        queryParams: O.none,
+        body: O.none,
       }
     ]});
 
@@ -131,12 +131,12 @@ Deno.test("Twitch authenticated request", async (test) => {
     const expectedRequest = {
       url: "url",
       method: "GET",
-      headers: OP.some({
+      headers: O.some({
         'Client-Id': clientId,
         'Authorization': `Bearer ${authorisationToken.getAccessToken()}`,
       }),
-      queryParams: OP.none,
-      body: OP.none,
+      queryParams: O.none,
+      body: O.none,
     }
     const request = spy(() => TE.right(requestResult));
     const getAccessToken = spy(() => TE.right(authorisationToken));
@@ -145,7 +145,7 @@ Deno.test("Twitch authenticated request", async (test) => {
     await authenticatedRequest(requestParams)();
 
     await pipe(
-      authenticatedRequest({ url: "url", method: "GET", headers: OP.none, queryParams: OP.none, body: OP.none }),
+      authenticatedRequest({ url: "url", method: "GET", headers: O.none, queryParams: O.none, body: O.none }),
     )();
     
     assertSpyCalls(getAccessToken, 1);

@@ -1,10 +1,9 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
-import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import * as A from "https://esm.sh/fp-ts@2.13.1/Array";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
-import * as OP from "/usecase/shared/fp/optional_param.ts";
+import * as O from  "https://esm.sh/fp-ts@2.13.1/Option";
 import { mapToOutgoingStreams } from "/contracts/mappers/streams_mapper.ts";
 import { noOutgoingStreams } from "/contracts/outgoing_streams.ts";
 import { aggregateStreams } from "/usecase/get-streams/mappers/platform_streams_aggregator.ts";
@@ -19,6 +18,7 @@ import { packPageTokens, unpackPageToken } from "/contracts/mappers/pack_token_p
 
 export const router = new Router();
 
+const defaultPageSize = 8;
 const twitchGateway = getTwitchGateway();
 
 router
@@ -49,7 +49,7 @@ function createStreamProviders(pageOffsets: Record<string, string>): StreamProvi
 
 function createTwitchStreamProvider(pageOffsets: Record<string, string>): StreamProvider {  
   return getTwitchPlatformStreams({
-    getTwitchStreams: twitchGateway.getStreams({ pageOffset: OP.fromNullable(pageOffsets['twitch']) }),
+    getTwitchStreams: twitchGateway.getStreams({ pageSize: O.some(defaultPageSize), pageOffset: O.fromNullable(pageOffsets['twitch']) }),
     getTwitchUsersByIds: twitchGateway.getUsersById,
     mapTwitchStreamsToPlatformStreams
   });

@@ -1,6 +1,7 @@
 import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
+import { removeNoneParams } from "./fp_utils.ts";
 
 export type RequestMethod = 'GET' | 'POST'
 
@@ -59,8 +60,7 @@ export const fetchRequest = (
       TE.chain((requestInit) => pipe(
         TE.Do,
         TE.bind("url", () => TE.right(buildUrl(params.url, params.queryParams))),
-        TE.bind("requestInit", () => TE.right(requestInit)),
-        TE.chain(({ url, requestInit }) => invokeRequest(fetch, url, requestInit))
+        TE.chain(({ url }) => invokeRequest(fetch, url, requestInit))
       ))
    )
 }
@@ -99,17 +99,17 @@ function invokeRequest(
 }
 
 function toRequestInit(invokeParams: InvokeParams): RequestInit {
-  return {
-    method: invokeParams.method,
-    ...O.match(
-      () => ({}),
-      (headers) => ({ headers })
-    )(invokeParams.headers),
-    ...O.match(
-      () => ({}),
-      (body) => ({ body })
-    )(invokeParams.body),
-  }
+  return pipe(
+    {
+      headers: invokeParams.headers,
+      body: invokeParams.body,  
+    },
+    removeNoneParams,
+    O.match(
+      () => ({ method: invokeParams.method }),
+      (params) => ({ method: invokeParams.method, ...params })   
+    )
+  )
 }
 
 function getFailedResponse(error: unknown): RequestFailure {
