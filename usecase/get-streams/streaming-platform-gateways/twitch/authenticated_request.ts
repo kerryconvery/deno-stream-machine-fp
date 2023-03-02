@@ -66,7 +66,7 @@ export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }
         if (error instanceof UnauthorizedRequest) {
           return retryAuthenticatedRequest(params)
         }
-        return TE.left(error);      
+        return TE.left(error);
       }),
     )
   }

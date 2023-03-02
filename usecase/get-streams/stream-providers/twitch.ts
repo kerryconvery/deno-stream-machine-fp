@@ -39,7 +39,7 @@ export const getTwitchPlatformStreams = ({
 }: GetTwitchPlatformStreams) => (): TO.TaskOption<PlatformStreams> => {
   return pipe(
     TO.Do,
-    TO.bind("twitchStreams", getTwitchStreams),
+    TO.bind("twitchStreams", () => getTwitchStreams()),
     TO.bind("twitchStreamerIds", ({ twitchStreams }) => TO.of(extractStreamerIds(twitchStreams.data))),
     TO.bind("twitchStreamers", ({ twitchStreamerIds }) => TO.fromTask(getTwitchUsersByIds(twitchStreamerIds))),
     TO.map(({ twitchStreams, twitchStreamers }) => mapTwitchStreamsToPlatformStreams(twitchStreams, twitchStreamers))

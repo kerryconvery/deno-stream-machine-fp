@@ -1,7 +1,6 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
-import * as A from "https://esm.sh/fp-ts@2.13.1/Array";
 import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import * as O from  "https://esm.sh/fp-ts@2.13.1/Option";
 import { mapToOutgoingStreams } from "/contracts/mappers/streams_mapper.ts";
@@ -21,17 +20,21 @@ export const router = new Router();
 const defaultPageSize = 8;
 const twitchGateway = getTwitchGateway();
 
+interface SearchParams {
+  pageOffsets: Record<string, string>,
+  searchTerm: O.Option<string>,
+}
+
 router
   .get("/streams", async (context) => {
     const streams = await pipe(
-      O.fromNullable(context.request.url.searchParams.get('pagetoken')),
-      O.map(unpackPageToken),
-      O.match(
-        () => createStreamProviders({}),
-        (pageOffsets) => createStreamProviders(pageOffsets),
-      ),
-      A.map((streamProvider) => streamProvider()),
-      TO.sequenceArray,
+      O.Do,
+      O.bind('pageOffsets', () => O.some(getPageOffsets(context.request.url.searchParams))),
+      O.bind('searchTerm', () => O.some(getSearchTerm(context.request.url.searchParams))),
+      O.map((parameters: SearchParams) => createStreamProviders(parameters)),
+      TO.fromOption,
+      TO.map((streamProviders) => invokeStreamProviders(streamProviders)),
+      TO.chain((providerTasks) => TO.sequenceArray(providerTasks)),
       TO.map((platformStreamsCollection: readonly PlatformStreams[]) => aggregateStreams(platformStreamsCollection)),
       TO.map(mapToOutgoingStreams(packPageTokens)),
       TO.getOrElse(() => T.of(noOutgoingStreams))
@@ -43,8 +46,22 @@ router
 
 type StreamProvider = () => TO.TaskOption<PlatformStreams>;
 
-function createStreamProviders(pageOffsets: Record<string, string>): StreamProvider[] {
-  return [createTwitchStreamProvider(pageOffsets)];
+function getPageOffsets(searchParams: URLSearchParams): Record<string, string> {
+  return pipe(
+    O.fromNullable(searchParams.get('pagetoken')),
+    O.match(
+      () => ({}),
+      (pagetoken: string) => unpackPageToken(pagetoken) 
+    )
+  )
+}
+
+function getSearchTerm(searchParams: URLSearchParams): O.Option<string> {
+  return O.fromNullable(searchParams.get('searchterm'))
+}
+
+function createStreamProviders(parameters: SearchParams): StreamProvider[] {
+  return [createTwitchStreamProvider(parameters.pageOffsets)];
 }
 
 function createTwitchStreamProvider(pageOffsets: Record<string, string>): StreamProvider {  
@@ -53,6 +70,10 @@ function createTwitchStreamProvider(pageOffsets: Record<string, string>): Stream
     getTwitchUsersByIds: twitchGateway.getUsersById,
     mapTwitchStreamsToPlatformStreams
   });
+}
+
+function invokeStreamProviders(streamProviders: StreamProvider[]): TO.TaskOption<PlatformStreams>[] {
+  return streamProviders.map(streamProvider => streamProvider())
 }
 
 function getTwitchGateway() {
@@ -76,3 +97,4 @@ function getTwitchGateway() {
     authorisedRequest: twitchClient
   })
 }
+
