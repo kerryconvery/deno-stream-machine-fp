@@ -8,7 +8,7 @@ import { noOutgoingStreams } from "/contracts/outgoing_streams.ts";
 import { aggregateStreams } from "/usecase/get-streams/mappers/platform_streams_aggregator.ts";
 import { mapTwitchStreamsToPlatformStreams } from "/usecase/get-streams/mappers/twitch/twitch_helix_stream_mappers.ts";
 import { getTwitchPlatformStreams } from "/usecase/get-streams/stream-providers/twitch.ts";
-import { PlatformStreams } from "/usecase/get-streams/stream-providers/types.ts";
+import { PlatformStreams, StreamProvider } from "/usecase/get-streams/stream-providers/types.ts";
 import { twitchRequestAuthoriser } from "/usecase/get-streams/streaming-platform-gateways/twitch/request_authoriser.ts";
 import { createTwitchHelixGateway } from "/usecase/get-streams/streaming-platform-gateways/twitch/twitch_helix_gateway.ts";
 import { fetchRequest } from "/usecase/shared/fetch_request.ts";
@@ -31,11 +31,11 @@ router
       O.Do,
       O.bind('pageOffsets', () => O.some(getPageOffsets(context.request.url.searchParams))),
       O.bind('searchTerm', () => O.some(getSearchTerm(context.request.url.searchParams))),
-      O.map((parameters: SearchParams) => createStreamProviders(parameters)),
+      O.bind('streamProviders', (parameters: SearchParams) => O.some(createStreamProviders(parameters))),
       TO.fromOption,
-      TO.map((streamProviders) => invokeStreamProviders(streamProviders)),
-      TO.chain((providerTasks) => TO.sequenceArray(providerTasks)),
-      TO.map((platformStreamsCollection: readonly PlatformStreams[]) => aggregateStreams(platformStreamsCollection)),
+      TO.map(invokeStreamProviders),
+      TO.chain(TO.sequenceArray),
+      TO.map(aggregateStreams),
       TO.map(mapToOutgoingStreams(packPageTokens)),
       TO.getOrElse(() => T.of(noOutgoingStreams))
     )();
@@ -43,8 +43,6 @@ router
     context.response.body = streams;
     context.response.status = 200;
   })
-
-type StreamProvider = () => TO.TaskOption<PlatformStreams>;
 
 function getPageOffsets(searchParams: URLSearchParams): Record<string, string> {
   return pipe(
@@ -68,12 +66,20 @@ function createTwitchStreamProvider(pageOffsets: Record<string, string>): Stream
   return getTwitchPlatformStreams({
     getTwitchStreams: twitchGateway.getStreams({ pageSize: O.some(defaultPageSize), pageOffset: O.fromNullable(pageOffsets['twitch']) }),
     getTwitchUsersByIds: twitchGateway.getUsersById,
+    searchTwitchCategories: twitchGateway.searchCategories,
     mapTwitchStreamsToPlatformStreams
   });
 }
 
-function invokeStreamProviders(streamProviders: StreamProvider[]): TO.TaskOption<PlatformStreams>[] {
-  return streamProviders.map(streamProvider => streamProvider())
+function invokeStreamProviders(
+  {
+    streamProviders,
+    searchTerm
+  }: {
+    streamProviders: StreamProvider[],
+    searchTerm: O.Option<string>
+  }): TO.TaskOption<PlatformStreams>[] {
+  return streamProviders.map(streamProvider => streamProvider(searchTerm))
 }
 
 function getTwitchGateway() {

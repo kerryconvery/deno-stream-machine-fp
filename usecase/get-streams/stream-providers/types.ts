@@ -1,4 +1,5 @@
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 
 export type PlatformStreamStreamer = {
   id: string;
@@ -21,3 +22,5 @@ export type PlatformStreams = {
   streams: PlatformStream[],
   nextPageOffset: O.Option<string>,
 }
+
+export type StreamProvider = (searchTerm: O.Option<string>) => TO.TaskOption<PlatformStreams>;
