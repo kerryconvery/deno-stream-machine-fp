@@ -5,7 +5,7 @@ import { router as streamsRouter } from "./routes/stream_routes.ts";
 const app = new Application()
 app.use(
     oakCors({
-      origin: "https://react-stream-machine.deno.dev"
+      origin: "https://stream-machine.deno.dev"
     }),
 );
 app.use(streamsRouter.routes())
