@@ -40,7 +40,7 @@ Deno.test('Twitch stream mapper', async (test) => {
             title: 'God of war',
             url: 'https://www.twitch.tv/streamer1',
             views: 10,
-            thumbnailUrl: 'thumbnail',
+            thumbnailUrl: 'thumbnail-320x180.jpg',
             streamer: {
               id: '1',
               name: 'streamer1',
@@ -53,7 +53,7 @@ Deno.test('Twitch stream mapper', async (test) => {
             title: 'Dark souls',
             url: 'https://www.twitch.tv/streamer1',
             views: 10,
-            thumbnailUrl: 'thumbnail',
+            thumbnailUrl: 'thumbnail-320x180.jpg',
             streamer: {
               id: '2',
               name: 'streamer2',
@@ -134,7 +134,7 @@ Deno.test('Twitch stream mapper', async (test) => {
       title,
       user_id: userId,
       user_login: 'streamer1',
-      thumbnail_url: 'thumbnail',
+      thumbnail_url: 'thumbnail-{width}x{height}.jpg',
       viewer_count: 10,
       isLive: true,
     }

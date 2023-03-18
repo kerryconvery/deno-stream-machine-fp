@@ -8,5 +8,6 @@
     "--allow-all",
     "--no-check",
     "--unstable"
-  ]
+  ],
+  "deno.enable": true
 }

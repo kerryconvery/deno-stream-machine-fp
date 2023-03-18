@@ -18,7 +18,7 @@ function toPlatformStream(stream: TwitchStream, streamer: TwitchUser): PlatformS
   return {
     id: stream.id,
     title: stream.title,
-    thumbnailUrl: stream.thumbnail_url,
+    thumbnailUrl: setThumbnailSize(stream.thumbnail_url),
     url: `https://www.twitch.tv/${stream.user_login}`,
     streamer: {
       id: stream.user_id,
@@ -28,6 +28,12 @@ function toPlatformStream(stream: TwitchStream, streamer: TwitchUser): PlatformS
     isLive: true,
     views: stream.viewer_count
   }
+}
+
+const setThumbnailSize = (thumbnailPattern: string): string => {
+  return thumbnailPattern
+    .replace('{width}', '320')
+    .replace('{height}', '180')
 }
 
 const blankStreamer: TwitchUser = {
