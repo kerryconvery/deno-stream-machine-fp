@@ -18,14 +18,14 @@ type YouTubeVideoOptions = {
   }
 
 export interface YouTubeV3Gateway {
-    searchVideos: (options: YouTubeVideoOptions) => () => TO.TaskOption<YouTubeSearchResult>,
+    searchVideos: (options: YouTubeVideoOptions) => (searchTerm: O.Option<string>) => TO.TaskOption<YouTubeSearchResult>,
     getChannelsById: (channelIds: string[]) => TO.TaskOption<YouTubeChannels>,
     getVideosById: (VideoIds: string[]) => TO.TaskOption<YouTubeVideoDetailsList>,
 }
   
 export function createYouTubeV3Gateway({ apiUrl, authorisedRequest }: YouTubeV3GatewayParams): YouTubeV3Gateway {
     return {
-        searchVideos: ({ pageSize, pageOffset }: YouTubeVideoOptions) => (): TO.TaskOption<YouTubeSearchResult> => {
+        searchVideos: ({ pageSize, pageOffset }: YouTubeVideoOptions) => (searchTerm: O.Option<string>): TO.TaskOption<YouTubeSearchResult> => {
           return pipe(
             TE.Do,
             TE.bind('url', () => TE.right(`${apiUrl}/youtube/v3/search`)),
@@ -35,6 +35,7 @@ export function createYouTubeV3Gateway({ apiUrl, authorisedRequest }: YouTubeV3G
             }))),
             TE.bind('queryParams', () => TE.right(pipe(
               {
+                q: searchTerm,
                 pageToken: pageOffset,
               },
               removeNoneParams,
