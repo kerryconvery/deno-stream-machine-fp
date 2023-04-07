@@ -8,7 +8,13 @@ import {
     YouTubeSearchSnippetThumbnails,
     YouTubeSearchSnippet,
     YouTubeSearchItemId,
-    YouTubeSearchItem,YouTubeSearchResult, YouTubeChannel, YouTubeChannels, YouTubeVideoLiveStreamingDetails, YouTubeVideoDetails, YouTubeVideoDetailsList
+    YouTubeSearchItem,
+    YouTubeSearchResult,
+    YouTubeChannel,
+    YouTubeChannels,
+    YouTubeVideoLiveStreamingDetails,
+    YouTubeVideoDetails,
+    YouTubeVideoDetailsList
 } from "../../../stream-providers/youtube.ts";
 import { createYouTubeV3Gateway } from "../youtube_v3_gateway.ts";
 
@@ -117,7 +123,7 @@ Deno.test("YouTube v3 gateway", async (test) => {
     await test.step("Give a request to search for videos it will call the YouTube V3 service and return the result", async () => {
         const { youtubeGateway, request } = makeMockGateway(TE.right(new RequestSuccess(videoSearchResult)));
 
-        const searchResults = await youtubeGateway.searchVideos({ pageSize: 10, pageOffset: O.some('abc123') })()();
+        const searchResults = await youtubeGateway.searchVideos({ pageSize: 10, pageOffset: O.some('abc123') })(O.none)();
 
         assertSpyCall(request, 0, { args: [
             {
@@ -146,7 +152,7 @@ Deno.test("YouTube v3 gateway", async (test) => {
     await test.step("Give a request to search for videos without a page offset it will call the YouTube V3 service without a page token", async () => {
         const { youtubeGateway, request } = makeMockGateway(TE.right(new RequestSuccess(videoSearchResult)));
 
-        await youtubeGateway.searchVideos({ pageSize: 10, pageOffset: O.none })()();
+        await youtubeGateway.searchVideos({ pageSize: 10, pageOffset: O.none })(O.none)();
 
         assertSpyCall(request, 0, { args: [
             {
@@ -216,6 +222,35 @@ Deno.test("YouTube v3 gateway", async (test) => {
               }
         ]});
         assertEquals(videos, O.some(videosDetailsList));
+    })
+
+    await test.step("Give a search term it will call the YouTube V3 service and include the search term", async () => {
+        const { youtubeGateway, request } = makeMockGateway(TE.right(new RequestSuccess(videoSearchResult)));
+
+        await youtubeGateway.searchVideos({ pageSize: 10, pageOffset: O.some('abc123') })(O.some('search-term'))();
+
+        assertSpyCall(request, 0, { args: [
+            {
+                url: 'https://www.googleapis.com/youtube/v3/search',
+                method: 'GET',
+                headers: O.some({
+                    Accept: "application/json"
+                }),
+                body: O.none,
+                queryParams: O.some(
+                  {
+                    part: "snippet",
+                    eventType: 'Live',
+                    type: "video",
+                    videoCategoryId: 20,
+                    maxResults: 10,
+                    pageToken: 'abc123',
+                    order: 'ViewCount',
+                    q: 'search-term'
+                  }
+                )
+              }
+        ]});
     })
 
     function makeMockGateway(result: TE.TaskEither<RequestFailure, RequestSuccess>) {
