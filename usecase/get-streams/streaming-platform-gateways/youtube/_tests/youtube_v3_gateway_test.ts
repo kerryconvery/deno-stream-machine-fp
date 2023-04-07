@@ -8,7 +8,13 @@ import {
     YouTubeSearchSnippetThumbnails,
     YouTubeSearchSnippet,
     YouTubeSearchItemId,
-    YouTubeSearchItem,YouTubeSearchResult, YouTubeChannel, YouTubeChannels, YouTubeVideoLiveStreamingDetails, YouTubeVideoDetails, YouTubeVideoDetailsList
+    YouTubeSearchItem,
+    YouTubeSearchResult,
+    YouTubeChannel,
+    YouTubeChannels,
+    YouTubeVideoLiveStreamingDetails,
+    YouTubeVideoDetails,
+    YouTubeVideoDetailsList
 } from "../../../stream-providers/youtube.ts";
 import { createYouTubeV3Gateway } from "../youtube_v3_gateway.ts";
 
