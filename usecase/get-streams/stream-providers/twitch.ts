@@ -36,38 +36,38 @@ export type TwitchCategories = {
 }
 
 interface GetTwitchPlatformStreams {
-  getTwitchStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>;
-  getTwitchUsersByIds: (userIds: string[]) => T.Task<TwitchUser[]>;
-  searchTwitchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>;
-  mapTwitchStreamsToPlatformStreams: (twitchStreams: TwitchStreams, twitchStreamers: TwitchUser[]) => PlatformStreams;
+  getStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>;
+  getUsersByIds: (userIds: string[]) => T.Task<TwitchUser[]>;
+  searchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>;
+  mapStreamsToPlatformStreams: (twitchStreams: TwitchStreams, twitchStreamers: TwitchUser[]) => PlatformStreams;
 }
 
 export const getTwitchPlatformStreams = ({
-  getTwitchStreams,
-  getTwitchUsersByIds,
-  searchTwitchCategories,
-  mapTwitchStreamsToPlatformStreams,
+  getStreams,
+  getUsersByIds,
+  searchCategories,
+  mapStreamsToPlatformStreams,
 }: GetTwitchPlatformStreams): StreamProvider => (searchTerm: O.Option<string>): TO.TaskOption<PlatformStreams> => {
   return pipe(
     TO.Do,
-    TO.bind("twitchStreams", () => searchStreams(getTwitchStreams, searchTwitchCategories)(searchTerm)),
+    TO.bind("twitchStreams", () => searchStreams(getStreams, searchCategories)(searchTerm)),
     TO.bind("twitchStreamerIds", ({ twitchStreams }) => TO.of(extractStreamerIds(twitchStreams.data))),
-    TO.bind("twitchStreamers", ({ twitchStreamerIds }) => TO.fromTask(getTwitchUsersByIds(twitchStreamerIds))),
-    TO.map(({ twitchStreams, twitchStreamers }) => mapTwitchStreamsToPlatformStreams(twitchStreams, twitchStreamers))
+    TO.bind("twitchStreamers", ({ twitchStreamerIds }) => TO.fromTask(getUsersByIds(twitchStreamerIds))),
+    TO.map(({ twitchStreams, twitchStreamers }) => mapStreamsToPlatformStreams(twitchStreams, twitchStreamers))
   );
 }
 
 const searchStreams = (
-  getTwitchStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>,
-  searchTwitchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>,
+  getStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>,
+  searchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>,
 ) => {
   return O.match(
-    () => getTwitchStreams([]),
+    () => getStreams([]),
     (term: string) => pipe(
       term,
-      searchTwitchCategories,
+      searchCategories,
       TO.map(extractCategoryIds),
-      TO.chain(getTwitchStreams)
+      TO.chain(getStreams)
     )
   )
 }
