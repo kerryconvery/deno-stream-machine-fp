@@ -18,7 +18,7 @@ export type TwitchHelixGatewayParams = {
 }
 
 type TwitchStreamOptions = {
-  pageSize: O.Option<number>,
+  pageSize: number,
   pageOffset: O.Option<string>
 }
 
@@ -39,7 +39,7 @@ export function createTwitchHelixGateway({ apiUrl, authorisedRequest }: TwitchHe
         TE.bind('queryParams', () => TE.right(pipe(
           {
             'game_id': joinCategories(categories),
-            first: O.alt(() => O.some(20))(pageSize),
+            first: O.some(pageSize),
             after: pageOffset,
           },
           removeNoneParams,

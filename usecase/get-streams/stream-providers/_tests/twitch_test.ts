@@ -8,6 +8,7 @@ import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import { getTwitchPlatformStreams, TwitchCategories, TwitchStreams, TwitchUser } from "../twitch.ts";
 import { PlatformStreams } from "../types.ts";
+import { assertEquals } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 
 Deno.test("Twitch streams provider", async (test) => {
     const twitchStreams = {
@@ -42,37 +43,43 @@ Deno.test("Twitch streams provider", async (test) => {
       ]
     }
 
-    const getTwitchStreamsSpy = spy((_categoryIds: string[]): TO.TaskOption<TwitchStreams> => TO.some(twitchStreams));
-    const getTwitchUsersByIdsSpy = spy((_userIds: string[]): T.Task<TwitchUser[]> => T.of(twitchUsers));
-    const mapTwitchStreamsToPlatformStreamsSpy = spy((_streams: TwitchStreams, _streamers: TwitchUser[]): PlatformStreams => ({
+    const expectedPlatformStreams = {
       source: '',
       streams: [],
       nextPageOffset: O.none,
-    }));
-    const searchTwitchCategoriesSpy = spy((_searchTerm: string): TO.TaskOption<TwitchCategories> => TO.of(twitchCategories));
+    }
+
+    const getStreamsSpy = spy((_categoryIds: string[]): TO.TaskOption<TwitchStreams> => TO.some(twitchStreams));
+    const getUsersByIdsSpy = spy((_userIds: string[]): T.Task<TwitchUser[]> => T.of(twitchUsers));
+    const mapStreamsToPlatformStreamsSpy = spy((_streams: TwitchStreams, _streamers: TwitchUser[]): PlatformStreams =>  expectedPlatformStreams);
+    const searchCategoriesSpy = spy((_searchTerm: string): TO.TaskOption<TwitchCategories> => TO.of(twitchCategories));
 
     const getTwitchPlatformStreamsTask = getTwitchPlatformStreams({
-      getTwitchStreams: getTwitchStreamsSpy,
-      getTwitchUsersByIds: getTwitchUsersByIdsSpy,
-      searchTwitchCategories: searchTwitchCategoriesSpy,
-      mapTwitchStreamsToPlatformStreams: mapTwitchStreamsToPlatformStreamsSpy,
+      getStreams: getStreamsSpy,
+      getUsersByIds: getUsersByIdsSpy,
+      searchCategories: searchCategoriesSpy,
+      mapStreamsToPlatformStreams: mapStreamsToPlatformStreamsSpy,
     })
 
     await test.step('Given no search term it will return an unfiltered list of streams', async () => {
       await getTwitchPlatformStreamsTask(O.none)()
 
-      assertSpyCalls(searchTwitchCategoriesSpy, 0);
-      assertSpyCall(getTwitchStreamsSpy, 0,  { args: [[]] });
-      assertSpyCall(getTwitchUsersByIdsSpy, 0, { args: [['1']] });
-      assertSpyCall(mapTwitchStreamsToPlatformStreamsSpy, 0, { args: [twitchStreams, twitchUsers] });
+      assertSpyCalls(searchCategoriesSpy, 0);
+      assertSpyCall(getStreamsSpy, 0,  { args: [[]] });
+      assertSpyCall(getUsersByIdsSpy, 0, { args: [['1']] });
+      assertSpyCall(mapStreamsToPlatformStreamsSpy, 0, { args: [twitchStreams, twitchUsers] });
   });
 
   await test.step('Given a search term it will return a list of streams that match the search term', async () => {
     await getTwitchPlatformStreamsTask(O.some('search-term'))();
 
-    assertSpyCall(searchTwitchCategoriesSpy, 0, { args: ['search-term'] });
-    assertSpyCall(getTwitchStreamsSpy, 1,  { args: [['category-1', 'category-2']] });
-    // assertSpyCall(getTwitchUsersByIdsSpy, 0, { args: [['1']] });
-    // assertSpyCall(mapTwitchStreamsToPlatformStreamsSpy, 0, { args: [twitchStreams, twitchUsers] });
+    assertSpyCall(searchCategoriesSpy, 0, { args: ['search-term'] });
+    assertSpyCall(getStreamsSpy, 1,  { args: [['category-1', 'category-2']] });
+  });
+
+  await test.step('Given a search term it will return a list of streams that match the search term', async () => {
+    const platformStreams = await getTwitchPlatformStreamsTask(O.some('search-term'))();
+
+    assertEquals(platformStreams, O.some(expectedPlatformStreams))
   });
 })

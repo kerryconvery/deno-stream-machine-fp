@@ -3,6 +3,7 @@ import { pipe } from "https://esm.sh/fp-ts@2.13.1/function"
 import * as O from  "https://esm.sh/fp-ts@2.13.1/Option";
 import { TwitchAuthenticationFailed, TwitchAuthorisationToken } from "./request_authoriser.ts";
 import { RequestFailure, RequestParams, RequestSuccess, UnauthorizedRequest } from "../../../shared/fetch_request.ts";
+import { appendRequestHeaders } from "../../../shared/fp_utils.ts";
 
 export interface TwitchAuthenticatedRequestParams {
   clientId: string,
@@ -73,25 +74,8 @@ export const twitchAuthenticatedRequest = ({ clientId, request, getAccessToken }
 }
 
 function includeAuthorisationHeaders(clientId: string, accessToken: string) {
-  return (requestParams: RequestParams): RequestParams => {
-    return pipe(
-      requestParams.headers,
-      O.match(
-        () => O.some<Record<string, string>>({}),
-        () => requestParams.headers,
-      ),
-      O.map((headers: Record<string, string>) => ({
-        ...headers,
-        'Client-Id': clientId,
-        'Authorization': `Bearer ${accessToken}`,
-      })),
-      O.map((headers: Record<string, string>) => ({
-        ...requestParams,
-        headers: O.some(headers),
-      })),
-      O.getOrElse(() => ({
-        ...requestParams,
-      }))
-    )
-  }
+  return appendRequestHeaders({
+    'Client-Id': clientId,
+    'Authorization': `Bearer ${accessToken}`,
+  })
 }
