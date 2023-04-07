@@ -1,6 +1,7 @@
 import { Application } from "https://deno.land/x/oak/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
 import { router as streamsRouter } from "./routes/stream_routes.ts";
+import { router as verificationRouter } from "./routes/verification.ts"
 
 const app = new Application()
 app.use(
@@ -10,6 +11,7 @@ app.use(
 );
 app.use(streamsRouter.routes())
 app.use(streamsRouter.allowedMethods())
+app.use(verificationRouter.routes());
 
 app.addEventListener("listen", ({ hostname, port, secure }) => {
   console.log(
