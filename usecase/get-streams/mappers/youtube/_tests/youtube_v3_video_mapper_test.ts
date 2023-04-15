@@ -12,7 +12,7 @@ import {
     YouTubeVideoLiveStreamingDetails,
     YouTubeVideoDetails,
     YouTubeVideoDetailsList
-} from "../../../stream-providers/youtube.ts";
+} from "../../../services/youtube.ts";
 import { mapYouTubeV3VideosToPlatformStreams } from '../youtube_v3_video_mapper.ts'
 
 Deno.test('YouTube v3 stream mapper', async (test) => {

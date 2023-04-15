@@ -4,7 +4,7 @@ import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { RequestFailure, RequestSuccess, UnsupportedError } from "../../../../shared/fetch_request.ts";
 import { createTwitchHelixGateway } from "../twitch_helix_gateway.ts";
 import { assertSpyCall, spy } from "https://deno.land/std@0.172.0/testing/mock.ts";
-import { TwitchUser } from "../../../stream-providers/twitch.ts";
+import { TwitchUser } from "../../../services/twitch.ts";
 
 Deno.test("Twitch gateway", async (test) => {
   await test.step("Given a request for streams it will call the twitch service", async () => {
@@ -20,14 +20,11 @@ Deno.test("Twitch gateway", async (test) => {
           isLive: true,
         }
       ],
-      pagination: {
-        cursor: '3'
-      }
     };
 
     const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(twitchStreams)));
     
-    await twitchGateway.getStreams({ pageSize: 8, pageOffset: O.some('abc123') })([])();
+    const streams = await twitchGateway.getStreams({ pageSize: 8 })([])()
 
     assertSpyCall(request, 0, { args: [
       {
@@ -38,37 +35,13 @@ Deno.test("Twitch gateway", async (test) => {
         queryParams: O.some(
           { 
             first: 8,
-            after: 'abc123' 
           }
         )
       }]
     });
-  });
-
-
-  await test.step("Given that the request to the twitch service is successful it will return back a list of streams", async () => {
-    const twitchStreams = {
-      data: [
-        {
-          id: 'stream1',
-          title: 'God of war',
-          user_id: '1',
-          user_login: 'streamer1',
-          thumbnail_url: 'thumbnail',
-          viewer_count: 10,
-          isLive: true,
-        }
-      ],
-      pagination: {
-        cursor: '3'
-      }
-    };
-    const { twitchGateway } = makeMockGateway(TE.right(new RequestSuccess(twitchStreams)));
-    
-    const streams = await twitchGateway.getStreams({ pageSize: 8, pageOffset: O.none })([])()
 
     assertEquals(streams, O.some(twitchStreams));
-  })
+  });
 
   await test.step("Given a list of category ids it will include those in the request for streams", async () => {
     const twitchStreams = {
@@ -92,7 +65,7 @@ Deno.test("Twitch gateway", async (test) => {
 
     const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(twitchStreams)));
     
-    await twitchGateway.getStreams({ pageSize: 8, pageOffset: O.none })(categories)()
+    await twitchGateway.getStreams({ pageSize: 8 })(categories)()
 
     assertSpyCall(request, 0, { args: [
       {
@@ -113,7 +86,7 @@ Deno.test("Twitch gateway", async (test) => {
   await test.step("Given that the request to the twitch service fails it will return no streams", async () => {
     const { twitchGateway } = makeMockGateway(TE.left(new UnsupportedError()));
     
-    const streams = await twitchGateway.getStreams({ pageSize: 8, pageOffset: O.none })([])()
+    const streams = await twitchGateway.getStreams({ pageSize: 8 })([])()
 
     assertEquals(O.isNone(streams), true);
   })
@@ -176,7 +149,7 @@ Deno.test("Twitch gateway", async (test) => {
 
     const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(twitchCategories)));
     
-    await twitchGateway.searchCategories('search term')();
+    await twitchGateway.searchCategories( { pageSize: 10, pageOffset: O.none })('search term')();
 
     assertSpyCall(request, 0, { args: [
       {
@@ -184,7 +157,42 @@ Deno.test("Twitch gateway", async (test) => {
         method: 'GET',
         headers: O.none,
         body: O.none,
-        queryParams: O.none
+        queryParams: O.some(
+          { 
+            first: 10,
+          }
+        )   
+      }]
+    });
+  });
+
+  await test.step("Given a request for categories with a page offset it will include the page offset in the request", async () => {
+    const twitchCategories = {
+      data: [
+      {
+        id: 'category-1',
+      },
+      {
+        id: 'category-2',
+      }
+    ]}
+
+    const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(twitchCategories)));
+    
+    await twitchGateway.searchCategories( { pageSize: 10, pageOffset: O.some('abc123') })('search term')();
+
+    assertSpyCall(request, 0, { args: [
+      {
+        url: 'https://api.twitch.com/helix/search/categories?query=search%20term',
+        method: 'GET',
+        headers: O.none,
+        body: O.none,
+        queryParams: O.some(
+          { 
+            first: 10,
+            after: 'abc123',
+          }
+        )   
       }]
     });
   });
@@ -202,7 +210,7 @@ Deno.test("Twitch gateway", async (test) => {
 
     const { twitchGateway } = makeMockGateway(TE.right(new RequestSuccess(twitchCategories)));
     
-    const categories = await twitchGateway.searchCategories('search-term')();
+    const categories = await twitchGateway.searchCategories({ pageSize: 10, pageOffset: O.none })('search-term')();
 
     assertEquals(categories, O.some(twitchCategories));
   })
@@ -210,9 +218,80 @@ Deno.test("Twitch gateway", async (test) => {
   await test.step("Given that the request to the twitch service fails it will return no categories", async () => {
     const { twitchGateway } = makeMockGateway(TE.left(new UnsupportedError()));
     
-    const categories = await twitchGateway.searchCategories('search-term')();
+    const categories = await twitchGateway.searchCategories({ pageSize: 10, pageOffset: O.none })('search-term')();
 
     assertEquals(O.isNone(categories), true);
+  })
+
+  await test.step("Given a request for the top games it will call the twitch service", async () => {
+    const expectedTopGames = {
+      data: [
+      {
+        id: 'game-1',
+      },
+      {
+        id: 'game-2',
+      }
+    ]}
+
+    const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(expectedTopGames)));
+    
+    const topGames = await twitchGateway.getTopGames({ pageSize: 10, pageOffset: O.none })()();
+
+    assertSpyCall(request, 0, { args: [
+      {
+        url: 'https://api.twitch.com/helix/games/top',
+        method: 'GET',
+        headers: O.none,
+        body: O.none,
+        queryParams: O.some(
+          { 
+            first: 10,
+          }
+        )      
+      }]
+    });
+
+    assertEquals(topGames, O.some(expectedTopGames))
+  })
+
+  await test.step("Given a request for the next page of top games it will call the twitch service with a page token", async () => {
+    const expectedTopGames = {
+      data: [
+      {
+        id: 'game-3',
+      },
+      {
+        id: 'game-4',
+      }
+    ]}
+
+    const { twitchGateway, request } = makeMockGateway(TE.right(new RequestSuccess(expectedTopGames)));
+    
+    await twitchGateway.getTopGames({ pageSize: 10, pageOffset: O.some('abc1234') })()();
+
+    assertSpyCall(request, 0, { args: [
+      {
+        url: 'https://api.twitch.com/helix/games/top',
+        method: 'GET',
+        headers: O.none,
+        body: O.none,
+        queryParams: O.some(
+          { 
+            first: 10,
+            after: 'abc1234',
+          }
+        )      
+      }]
+    });
+  })
+
+  await test.step("Given that the request for top games fails it will return no games", async () => {
+    const { twitchGateway } = makeMockGateway(TE.left(new UnsupportedError()));
+    
+    const topGames = await twitchGateway.getTopGames({ pageSize: 10, pageOffset: O.some('abc1234') })()();
+
+    assertEquals(O.isNone(topGames), true);
   })
 
   function makeMockGateway(result: TE.TaskEither<RequestFailure, RequestSuccess>) {

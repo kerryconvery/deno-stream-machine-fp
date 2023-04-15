@@ -15,7 +15,7 @@ import {
     YouTubeVideoLiveStreamingDetails,
     YouTubeVideoDetails,
     YouTubeVideoDetailsList
-} from "../../../stream-providers/youtube.ts";
+} from "../../../services/youtube.ts";
 import { createYouTubeV3Gateway } from "../youtube_v3_gateway.ts";
 
 Deno.test("YouTube v3 gateway", async (test) => {

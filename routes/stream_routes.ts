@@ -6,7 +6,7 @@ import * as O from  "https://esm.sh/fp-ts@2.13.1/Option";
 import { mapToOutgoingStreams } from "/contracts/mappers/streams_mapper.ts";
 import { noOutgoingStreams } from "/contracts/outgoing_streams.ts";
 import { aggregateStreams } from "/usecase/get-streams/mappers/platform_streams_aggregator.ts";
-import { PlatformStreams, StreamProvider } from "/usecase/get-streams/stream-providers/types.ts";
+import { PlatformStreams, StreamProvider } from "/usecase/get-streams/services/types.ts";
 import { packPageTokens, unpackPageToken } from "/contracts/mappers/pack_token_pack.ts";
 import { createStreamProviders, SearchParams } from "./stream_providers_factor.ts";
 

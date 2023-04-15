@@ -88,6 +88,8 @@ function invokeRequest(
     async () => {
       const response = await fetch(url, toRequestInit(invokeParams));
 
+      console.log(response);
+      
       if (response.status >= 400) {
         return Promise.reject(new HttpError(response.status, "Error"))
       }

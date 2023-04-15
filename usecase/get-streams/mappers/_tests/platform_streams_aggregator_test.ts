@@ -1,7 +1,7 @@
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.139.0/testing/asserts.ts";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { aggregateStreams } from "../platform_streams_aggregator.ts"
-import { PlatformStreams,PlatformStream } from "../../stream-providers/types.ts";
+import { PlatformStreams,PlatformStream } from "../../services/types.ts";
 
 Deno.test("Stream aggreator service", async (test) => {
   await test.step("Given a list of provider streams it returns an aggregatoed list of streams", () => {
