@@ -1,6 +1,7 @@
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import * as A from "https://esm.sh/fp-ts@2.13.1/Array";
 import { pipe, flow } from "https://esm.sh/fp-ts@2.13.1/function"
 import { PlatformStreams, StreamProvider } from "./types.ts";
 
@@ -84,7 +85,13 @@ const searchStreams = (
     }),
     TO.bind("categoryIds", ({ categories }) => TO.some(extractCategoryIds(categories))),
     TO.bind("streams", ({ categoryIds }) => {
-      return categoryIds.length > 0 ? getStreams(categoryIds) : TO.none
+      return pipe(
+        categoryIds,
+        A.match (
+          () =>TO.none,
+          () => getStreams(categoryIds)
+        )
+      )
     }),
     TO.map(({ categories, streams }) => ({
         streams: streams.data,

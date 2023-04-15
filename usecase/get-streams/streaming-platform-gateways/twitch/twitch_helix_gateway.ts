@@ -1,8 +1,10 @@
 import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as T from "https://esm.sh/fp-ts@2.13.1/Task";
-import { pipe } from "https://esm.sh/v103/fp-ts@2.13.1/lib/function";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
+import * as A from "https://esm.sh/fp-ts@2.13.1/Array";
+import { pipe } from "https://esm.sh/v103/fp-ts@2.13.1/lib/function";
+
 import { encodeUrl } from "https://deno.land/x/encodeurl/mod.ts";
 import { RequestFailure, RequestParams, RequestSuccess, RequestMethod } from "../../../shared/fetch_request.ts";
 import { TwitchCategories, TwitchStreams, TwitchUser } from "../../services/twitch.ts";
@@ -124,9 +126,11 @@ function joinUserIds(userIds: string[]): string {
 }
 
 function joinCategories(categories: string[]): O.Option<string> {
-  if (categories.length === 0) {
-    return O.none;
-  }
-
-  return O.some(categories.join('&game_id='))
+  return pipe(
+    categories,
+    A.match(
+      () => O.none,
+      () =>  O.some(categories.join('&game_id='))
+    )
+  )
 }
