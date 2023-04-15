@@ -1,11 +1,11 @@
-import { TwitchStream, TwitchStreams, TwitchUser } from "../../stream-providers/twitch.ts";
+import { PagedTwitchStreams, TwitchStream, TwitchUser } from "../../services/twitch.ts";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
-import { PlatformStreams, PlatformStream } from "../../stream-providers/types.ts";
+import { PlatformStreams, PlatformStream } from "../../services/types.ts";
 
-export function mapTwitchStreamsToPlatformStreams(twitchStreams: TwitchStreams, twitchUsers: TwitchUser[]): PlatformStreams {
+export function mapTwitchStreamsToPlatformStreams(twitchStreams: PagedTwitchStreams, twitchUsers: TwitchUser[]): PlatformStreams {
   return {
     source: 'twitch',
-    streams: twitchStreams.data.map(stream => {
+    streams: twitchStreams.streams.map(stream => {
       const streamer = twitchUsers.find(user => user.id === stream.user_id);
 
       return toPlatformStream(stream, streamer ?? blankStreamer)

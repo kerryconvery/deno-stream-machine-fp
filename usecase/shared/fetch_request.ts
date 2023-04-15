@@ -87,7 +87,7 @@ function invokeRequest(
   return TE.tryCatch(
     async () => {
       const response = await fetch(url, toRequestInit(invokeParams));
-
+      
       if (response.status >= 400) {
         return Promise.reject(new HttpError(response.status, "Error"))
       }

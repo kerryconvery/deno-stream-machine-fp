@@ -1,14 +1,13 @@
 import { pipe } from "https://esm.sh/v111/fp-ts@2.13.1/lib/function";
 import * as A from "https://esm.sh/v103/fp-ts@2.13.1/lib/Array";
-import * as R from "https://esm.sh/v103/fp-ts@2.13.1/lib/Record";
 import * as O from "https://esm.sh/v103/fp-ts@2.13.1/lib/Option";
-import { PlatformStream, PlatformStreams } from "../../stream-providers/types.ts";
+import { PlatformStream, PlatformStreams } from "../../services/types.ts";
 import {
     YouTubeSearchResult,
     YouTubeChannels,
     YouTubeVideoDetailsList,
 YouTubeSearchItem
-} from "../../stream-providers/youtube.ts";
+} from "../../services/youtube.ts";
 
 export function mapYouTubeV3VideosToPlatformStreams(
     videoBaseUrl: string

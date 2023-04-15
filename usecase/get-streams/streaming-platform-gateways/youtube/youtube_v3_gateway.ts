@@ -2,7 +2,7 @@ import * as TE from "https://esm.sh/fp-ts@2.13.1/TaskEither";
 import * as TO from "https://esm.sh/fp-ts@2.13.1/TaskOption";
 import * as O from "https://esm.sh/fp-ts@2.13.1/Option";
 import { pipe } from "https://esm.sh/v103/fp-ts@2.13.1/lib/function";
-import { YouTubeChannels, YouTubeSearchResult, YouTubeVideoDetailsList } from "../../stream-providers/youtube.ts";
+import { YouTubeChannels, YouTubeSearchResult, YouTubeVideoDetailsList } from "../../services/youtube.ts";
 import { RequestParams,RequestFailure,RequestSuccess, RequestMethod } from "../../../shared/fetch_request.ts";
 import { removeNoneParams } from "../../../shared/fp_utils.ts";
 
