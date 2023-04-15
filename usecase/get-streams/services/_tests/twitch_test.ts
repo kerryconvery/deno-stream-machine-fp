@@ -98,32 +98,45 @@ Deno.test("Twitch streams provider", async (test) => {
       getTwitchPlatformStreamsTask
     } = getTwitchPlatformStreamsTaskWithMocks()
 
-    await getTwitchPlatformStreamsTask(O.some('search-term'))();
+    const platformStreams = await getTwitchPlatformStreamsTask(O.some('search-term'))();
 
     assertSpyCalls(getGamesSpy, 0);
     assertSpyCall(searchCategoriesSpy, 0, { args: ['search-term'] });
     assertSpyCall(getStreamsSpy, 0,  { args: [['category-1', 'category-2']] });
     assertSpyCall(getUsersByIdsSpy, 0, { args: [['1']] });
     assertSpyCall(mapStreamsToPlatformStreamsSpy, 0, { args: [pagedTwitchStreams, twitchUsers] });
-  });
-
-  await test.step('Given a search term it will return a list of streams that match the search term', async () => {
-    const { getTwitchPlatformStreamsTask } = getTwitchPlatformStreamsTaskWithMocks()
-
-    const platformStreams = await getTwitchPlatformStreamsTask(O.some('search-term'))();
-
     assertEquals(platformStreams, O.some(expectedPlatformStreams))
   });
 
-  function getTwitchPlatformStreamsTaskWithMocks() {
+  await test.step('Given a search term it will return not try to get streams if no categories were found', async () => {
+    const {
+      searchCategoriesSpy,
+      getGamesSpy,
+      getStreamsSpy,
+      getUsersByIdsSpy,
+      mapStreamsToPlatformStreamsSpy,
+      getTwitchPlatformStreamsTask
+    } = getTwitchPlatformStreamsTaskWithMocks({ categories : { data: [], pagination: {} }})
+
+    const platformStreams = await getTwitchPlatformStreamsTask(O.some('search-term'))();
+
+    assertSpyCalls(getGamesSpy, 0);
+    assertSpyCall(searchCategoriesSpy, 0, { args: ['search-term'] });
+    assertSpyCalls(getStreamsSpy, 0);
+    assertSpyCalls(getUsersByIdsSpy, 0);
+    assertSpyCalls(mapStreamsToPlatformStreamsSpy, 0);
+    assertEquals(platformStreams, O.none)
+  });
+
+  function getTwitchPlatformStreamsTaskWithMocks(overrides?: { categories?: TwitchCategories }) {
     const getStreamsSpy = spy((_categoryIds: string[]): TO.TaskOption<TwitchStreams> => TO.some(twitchStreams));
     const getGamesSpy = spy((): TO.TaskOption<TwitchCategories> => TO.some(twitchGames));
     const getUsersByIdsSpy = spy((_userIds: string[]): T.Task<TwitchUser[]> => T.of(twitchUsers));
     const mapStreamsToPlatformStreamsSpy = spy((_streams: PagedTwitchStreams, _streamers: TwitchUser[]): PlatformStreams =>  expectedPlatformStreams);
-    const searchCategoriesSpy = spy((_searchTerm: string): TO.TaskOption<TwitchCategories> => TO.of(twitchCategories));
+    const searchCategoriesSpy = spy((_searchTerm: string): TO.TaskOption<TwitchCategories> => TO.of(overrides?.categories ?? twitchCategories));
 
     const getTwitchPlatformStreamsTask = getTwitchPlatformStreams({
-      getGames: getGamesSpy,
+      getCategories: getGamesSpy,
       getStreams: getStreamsSpy,
       getUsersByIds: getUsersByIdsSpy,
       searchCategories: searchCategoriesSpy,

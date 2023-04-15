@@ -32,7 +32,7 @@ export function createStreamProviders(parameters: SearchParams): StreamProvider[
 
 function createTwitchStreamProvider(pageSize: number, pageOffsets: Record<string, string>): StreamProvider {  
   return getTwitchPlatformStreams({
-    getGames: twitchGateway.getTopGames({ pageSize, pageOffset: O.fromNullable(pageOffsets['twitch']) }),
+    getCategories: twitchGateway.getTopGames({ pageSize, pageOffset: O.fromNullable(pageOffsets['twitch']) }),
     getStreams: twitchGateway.getStreams({ pageSize }),
     getUsersByIds: twitchGateway.getUsersById,
     searchCategories: twitchGateway.searchCategories({ pageSize, pageOffset: O.fromNullable(pageOffsets['twitch']) }),

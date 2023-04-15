@@ -153,12 +153,13 @@ Deno.test("Twitch gateway", async (test) => {
 
     assertSpyCall(request, 0, { args: [
       {
-        url: 'https://api.twitch.com/helix/search/categories?query=search%20term',
+        url: 'https://api.twitch.com/helix/search/categories',
         method: 'GET',
         headers: O.none,
         body: O.none,
         queryParams: O.some(
-          { 
+          {
+            query: "search%20term",
             first: 10,
           }
         )   
@@ -183,12 +184,13 @@ Deno.test("Twitch gateway", async (test) => {
 
     assertSpyCall(request, 0, { args: [
       {
-        url: 'https://api.twitch.com/helix/search/categories?query=search%20term',
+        url: 'https://api.twitch.com/helix/search/categories',
         method: 'GET',
         headers: O.none,
         body: O.none,
         queryParams: O.some(
           { 
+            query: "search%20term",
             first: 10,
             after: 'abc123',
           }

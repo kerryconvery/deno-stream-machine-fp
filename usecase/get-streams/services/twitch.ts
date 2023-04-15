@@ -43,23 +43,23 @@ export type PagedTwitchStreams = {
 }
 
 interface GetTwitchPlatformStreams {
-  getGames: () => TO.TaskOption<TwitchCategories>;
+  getCategories: () => TO.TaskOption<TwitchCategories>;
+  searchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>;
   getStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>;
   getUsersByIds: (userIds: string[]) => T.Task<TwitchUser[]>;
-  searchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>;
   mapStreamsToPlatformStreams: (twitchStreams: PagedTwitchStreams, twitchStreamers: TwitchUser[]) => PlatformStreams;
 }
 
 export const getTwitchPlatformStreams = ({
-  getGames,
+  getCategories,
+  searchCategories,
   getStreams,
   getUsersByIds,
-  searchCategories,
   mapStreamsToPlatformStreams,
 }: GetTwitchPlatformStreams): StreamProvider => (searchTerm: O.Option<string>): TO.TaskOption<PlatformStreams> => {
   return pipe(
     TO.Do,
-    TO.bind("pagedTwitchStreams", () => searchStreams(getGames, getStreams, searchCategories)(searchTerm)),
+    TO.bind("pagedTwitchStreams", () => searchStreams(getCategories, searchCategories, getStreams)(searchTerm)),
     TO.bind("twitchStreamerIds", ({ pagedTwitchStreams }) => TO.of(extractStreamerIds(pagedTwitchStreams.streams))),
     TO.bind("twitchStreamers", ({ twitchStreamerIds }) => TO.fromTask(getUsersByIds(twitchStreamerIds))),
     TO.map(({ pagedTwitchStreams, twitchStreamers }) => mapStreamsToPlatformStreams(pagedTwitchStreams, twitchStreamers))
@@ -67,9 +67,9 @@ export const getTwitchPlatformStreams = ({
 }
 
 const searchStreams = (
-  getGames: () => TO.TaskOption<TwitchCategories>,
-  getStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>,
+  getCategories: () => TO.TaskOption<TwitchCategories>,
   searchCategories: (searchTerm: string) => TO.TaskOption<TwitchCategories>,
+  getStreams: (categoryIds: string[]) => TO.TaskOption<TwitchStreams>,
 ) => (searchTerm: O.Option<string>): TO.TaskOption<PagedTwitchStreams> => {
   return pipe(
     TO.Do,
@@ -77,18 +77,20 @@ const searchStreams = (
       return pipe(
         searchTerm,
         O.match(
-          () => getGames(),
+          () => getCategories(),
           (term: string) => searchCategories(term)
         )
       )
     }),
     TO.bind("categoryIds", ({ categories }) => TO.some(extractCategoryIds(categories))),
-    TO.bind("streams", ({ categoryIds }) => getStreams(categoryIds)),
+    TO.bind("streams", ({ categoryIds }) => {
+      return categoryIds.length > 0 ? getStreams(categoryIds) : TO.none
+    }),
     TO.map(({ categories, streams }) => ({
         streams: streams.data,
         pagination: categories.pagination
       }
-    ))
+    )),
   )
 }
 

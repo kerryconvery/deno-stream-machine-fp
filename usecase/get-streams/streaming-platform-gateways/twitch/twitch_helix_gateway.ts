@@ -79,11 +79,12 @@ export function createTwitchHelixGateway({ apiUrl, authorisedRequest }: TwitchHe
     searchCategories: ({ pageSize, pageOffset }: TwitchCategorySearchOptions) => (searchTerm: string): TO.TaskOption<TwitchCategories> => {
       return pipe(
         TE.Do,
-        TE.bind('url', () => TE.right(`${apiUrl}/helix/search/categories?query=${encodeUrl(searchTerm)}`)),
+        TE.bind('url', () => TE.right(`${apiUrl}/helix/search/categories`)),
         TE.bind('method', () => TE.right('GET' as RequestMethod)),
         TE.bind('headers', () => TE.right(O.none)),
         TE.bind('queryParams', () => TE.right(pipe(
           {
+            query: O.some(encodeUrl(searchTerm)),
             first: O.some(pageSize),
             after: pageOffset
           },
